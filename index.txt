@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application de Suivi - La Villette</title>
+    <!-- Intégration de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Intégration de la bibliothèque d'icônes Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .status-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        /* Transitions pour les modales */
+        #image-viewer-modal, #event-modal, #timeline-modal, #comment-modal { 
+            transition: opacity 0.3s ease; 
+        }
+        #image-viewer-modal > div, #event-modal > div, #timeline-modal > div, #comment-modal > div {
+             transition: all 0.3s ease;
+        }
+        #full-image { 
+            max-width: 90vw; 
+            max-height: 90vh; 
+        }
+        /* Ligne de la timeline */
+        .timeline-item:last-child .timeline-line { 
+            display: none; 
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Écran de connexion -->
+    <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm">
+            <div class="text-center mb-6 flex flex-col items-center">
+                 <!-- Logo Villette -->
+                 <div class="flex items-center justify-center h-12 mb-4">
+                    <div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo">
+                        <span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span>
+                        <div class="relative w-7 h-10">
+                            <svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span>
+                    </div>
+                </div>
+                <h2 class="mt-4 text-2xl font-bold text-gray-900">Application de Suivi</h2>
+                <p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle et entrer le code.</p>
+            </div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Je suis un :</label>
+                    <div class="flex items-center justify-center space-x-4">
+                        <label for="role-salarié" class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" id="role-salarié" name="role" value="salarié" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked>
+                            <span class="text-gray-700">Salarié</span>
+                        </label>
+                        <label for="role-manager" class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" id="role-manager" name="role" value="manager" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500">
+                            <span class="text-gray-700">Manager</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label for="access-code" class="sr-only">Code d'accès</label>
+                    <input type="password" id="access-code" required class="w-full px-4 py-3 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Code d'accès">
+                </div>
+                <p id="error-message" class="text-red-500 text-sm mt-2 text-center h-5"></p>
+                <div class="mt-4">
+                    <button type="submit" class="w-full px-6 py-3 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">
+                        Connexion
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Conteneur principal de l'application -->
+    <div id="app-container" class="hidden">
+        <div class="flex h-screen">
+            <!-- Barre de navigation latérale -->
+            <aside class="w-64 bg-white shadow-md flex flex-col">
+                <div class="p-6 border-b flex items-center justify-center">
+                    <div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo">
+                        <span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span>
+                        <div class="relative w-6 h-8">
+                            <svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span>
+                    </div>
+                </div>
+                <div class="flex-1 p-4 space-y-2">
+                    <button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Nouveau Constat</span>
+                    </button>
+                </div>
+                <div class="p-4 border-t">
+                     <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-gray-200 rounded-full text-gray-600">
+                            <i data-lucide="user"></i>
+                        </div>
+                        <div>
+                            <p id="user-name" class="font-semibold text-sm">Jean Dupont</p>
+                            <p id="user-role" class="text-xs text-gray-500 capitalize">Salarié</p>
+                        </div>
+                     </div>
+                     <button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg">
+                        <i data-lucide="log-out" class="h-4 w-4"></i>
+                        <span>Déconnexion</span>
+                     </button>
+                </div>
+            </aside>
+            
+            <!-- Contenu principal -->
+            <main class="flex-1 p-8 overflow-y-auto no-scrollbar">
+                <!-- Vue Salarié -->
+                <div id="salarié-view" class="page hidden">
+                    <h2 class="text-3xl font-bold mb-6">Mes constats</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div id="salarié-log-list" class="space-y-4"></div>
+                    </div>
+                </div>
+                <!-- Vue Manager -->
+                <div id="manager-view" class="page hidden">
+                    <h2 class="text-3xl font-bold mb-6">Tableau de bord Manager</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div>
+                    </div>
+                    <div class="mt-8 bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-bold mb-4">Tous les constats</h3>
+                        <div id="manager-log-list" class="space-y-4"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modale Ajout Constat -->
+    <div id="event-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl transform transition-all scale-95 opacity-0">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Signaler un nouveau constat</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <form id="event-form">
+                <div>
+                    <label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                    <input type="text" id="event-title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Fuite d'eau couloir B">
+                </div>
+                <div class="mt-6">
+                    <label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="event-description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajoutez les détails..."></textarea>
+                </div>
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Photo (optionnel)</label>
+                    <div id="image-upload-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div class="space-y-1 text-center">
+                            <i data-lucide="image" class="mx-auto h-12 w-12 text-gray-400"></i>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="event-photo" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500">
+                                    <span>Téléchargez un fichier</span>
+                                    <input id="event-photo" type="file" class="sr-only" accept="image/*">
+                                </label>
+                                <p class="pl-1">ou glissez-déposez</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF</p>
+                        </div>
+                    </div>
+                    <div id="image-preview-container" class="mt-4 hidden text-center">
+                        <img id="image-preview" src="#" alt="Aperçu" class="max-h-32 mx-auto rounded-lg shadow-sm"/>
+                        <button id="remove-image-btn" type="button" class="mt-2 text-sm text-red-600 hover:text-red-800">Retirer</button>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end space-x-4">
+                    <button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button>
+                    <button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Soumettre</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modale Visionneuse Image -->
+    <div id="image-viewer-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] hidden">
+        <div class="transform transition-all scale-95 opacity-0">
+            <img id="full-image" src="" alt="Photo du constat en grand" class="rounded-lg shadow-2xl"/>
+            <button class="close-modal-btn absolute top-4 right-4 text-white text-3xl font-bold">&times;</button>
+        </div>
+    </div>
+    
+    <!-- Modale Timeline Salarié -->
+    <div id="timeline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg transform transition-all scale-95 opacity-0">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="timeline-title" class="text-2xl font-bold">Suivi du constat</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <div id="timeline-content" class="max-h-[60vh] overflow-y-auto pr-4">
+                <!-- Contenu de la timeline généré par JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale Commentaires Manager -->
+    <div id="comment-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg transform transition-all scale-95 opacity-0">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="comment-title" class="text-2xl font-bold">Commentaires</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <div id="comment-list" class="max-h-[40vh] overflow-y-auto pr-4 space-y-4 mb-6">
+                <!-- Commentaires générés par JS -->
+            </div>
+            <form id="comment-form">
+                <label for="new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label>
+                <textarea id="new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre commentaire..."></textarea>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialisation des icônes
+        lucide.createIcons();
+
+        // --- État Global ---
+        // Dans une vraie application, ceci serait chargé depuis une base de données.
+        const state = { 
+            currentUserRole: null, 
+            currentUserName: null, 
+            events: [] 
+        };
+        const correctSalariéCode = 'Villette2025';
+        const correctManagerCode = 'DTNDMM2025';
+        
+        // --- Éléments DOM ---
+        const loginModal = document.getElementById('login-modal');
+        const appContainer = document.getElementById('app-container');
+        const eventModal = document.getElementById('event-modal');
+        const imageViewerModal = document.getElementById('image-viewer-modal');
+        const timelineModal = document.getElementById('timeline-modal');
+        const commentModal = document.getElementById('comment-modal');
+        const modals = [eventModal, imageViewerModal, timelineModal, commentModal];
+        
+        // --- Logique de Connexion ---
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const selectedRole = document.querySelector('input[name="role"]:checked').value;
+            const enteredCode = document.getElementById('access-code').value;
+            const isSalarié = selectedRole === 'salarié' && enteredCode === correctSalariéCode;
+            const isManager = selectedRole === 'manager' && enteredCode === correctManagerCode;
+            
+            if (isSalarié || isManager) {
+                loginModal.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                initializeApp(selectedRole); // Démarrer l'application avec le bon rôle
+            } else {
+                document.getElementById('error-message').textContent = 'Code d\'accès incorrect pour ce rôle.';
+                document.getElementById('access-code').value = '';
+            }
+        });
+
+        // --- Initialisation de l'Application ---
+        const initializeApp = (role) => {
+            state.currentUserRole = role;
+            state.currentUserName = role === 'manager' ? 'Alice Manager' : 'Jean Dupont';
+            document.getElementById('user-name').textContent = state.currentUserName;
+            document.getElementById('user-role').textContent = state.currentUserRole;
+            
+            // Données de démonstration
+            state.events = [
+                { id: 1, title: 'Ampoule grillée salle de réunion', description: 'L\'ampoule principale de la salle "Alpha" ne fonctionne plus.', user: 'Jean Dupont', timestamp: new Date(Date.now() - 3600000*25), status: 'Résolu', photo: null, 
+                  history: [
+                      { status: 'Nouveau', timestamp: new Date(Date.now() - 3600000*25), changedBy: 'Jean Dupont'},
+                      { status: 'En cours', timestamp: new Date(Date.now() - 3600000*10), changedBy: 'Alice Manager'},
+                      { status: 'Résolu', timestamp: new Date(Date.now() - 3600000*3), changedBy: 'Alice Manager'}
+                  ], 
+                  comments: [
+                      {text: 'Technicien de maintenance contacté. Intervention prévue cet après-midi.', author: 'Alice Manager', timestamp: new Date(Date.now() - 3600000 * 9)}
+                  ]
+                },
+                { id: 2, title: 'Machine à café en panne', description: 'La machine ne distribue plus de café. L\'écran affiche une erreur "Sys Error 05".', user: 'Marie Curie', timestamp: new Date(Date.now() - 3600000*8), status: 'En cours', photo: 'https://placehold.co/600x400/d1d5db/374151?text=Photo+Panne', 
+                  history: [
+                      { status: 'Nouveau', timestamp: new Date(Date.now() - 3600000*8), changedBy: 'Marie Curie'},
+                      { status: 'En cours', timestamp: new Date(Date.now() - 3600000*7), changedBy: 'Alice Manager'}
+                  ], 
+                  comments: [] 
+                },
+                { id: 3, title: 'Problème de connexion Wi-Fi', description: 'Le Wi-Fi est très lent et se déconnecte fréquemment au 2ème étage, aile ouest.', user: 'Jean Dupont', timestamp: new Date(Date.now() - 3600000*24), status: 'En cours', photo: null, 
+                  history: [
+                      { status: 'Nouveau', timestamp: new Date(Date.now() - 3600000*24), changedBy: 'Jean Dupont'},
+                      { status: 'En cours', timestamp: new Date(Date.now() - 3600000*23), changedBy: 'Alice Manager'}
+                  ], 
+                  comments: [
+                      {text: 'Le support IT a été notifié et examine le problème.', author: 'Alice Manager', timestamp: new Date(Date.now() - 3600000 * 22)},
+                      {text: 'Un redémarrage du routeur est planifié ce soir à 20h.', author: 'Alice Manager', timestamp: new Date(Date.now() - 3600000 * 5)}
+                  ]
+                },
+                { id: 4, title: 'Fenêtre bloquée', description: 'Impossible d\'ouvrir la fenêtre du bureau 101, la poignée semble cassée.', user: 'Pierre Martin', timestamp: new Date(Date.now() - 3600000*48), status: 'Nouveau', photo: null, 
+                  history: [
+                      { status: 'Nouveau', timestamp: new Date(Date.now() - 3600000*48), changedBy: 'Pierre Martin'}
+                  ], 
+                  comments: [] 
+                },
+            ];
+            renderApp();
+        };
+
+        // --- Fonctions de Rendu ---
+        const getStatusInfo = (status) => {
+            // Renvoie les classes CSS et l'icône pour chaque statut
+            switch (status) {
+                case 'Nouveau': return { badge: 'bg-blue-100 text-blue-800', icon: 'file-plus' };
+                case 'En cours': return { badge: 'bg-yellow-100 text-yellow-800', icon: 'loader-2' };
+                case 'Résolu': return { badge: 'bg-green-100 text-green-800', icon: 'check-circle' };
+                default: return { badge: 'bg-gray-100 text-gray-800', icon: 'help-circle' };
+            }
+        };
+
+        const renderApp = () => {
+            // Fonction principale pour redessiner l'interface
+            const sortedEvents = [...state.events].sort((a, b) => b.timestamp - a.timestamp);
+            document.getElementById('salarié-view').classList.toggle('hidden', state.currentUserRole !== 'salarié');
+            document.getElementById('manager-view').classList.toggle('hidden', state.currentUserRole !== 'manager');
+            
+            if (state.currentUserRole === 'salarié') {
+                const logList = document.getElementById('salarié-log-list');
+                const userEvents = sortedEvents.filter(e => e.user === state.currentUserName);
+                logList.innerHTML = userEvents.length > 0 
+                    ? userEvents.map(event => createEventElement(event, 'salarié')).join('') 
+                    : `<p class="text-center text-gray-500 py-4">Vous n'avez soumis aucun constat.</p>`;
+            } else {
+                // Mettre à jour les stats du manager
+                document.getElementById('stats-new').textContent = state.events.filter(e => e.status === 'Nouveau').length;
+                document.getElementById('stats-in-progress').textContent = state.events.filter(e => e.status === 'En cours').length;
+                document.getElementById('stats-resolved').textContent = state.events.filter(e => e.status === 'Résolu').length;
+                const logList = document.getElementById('manager-log-list');
+                logList.innerHTML = sortedEvents.length > 0 
+                    ? sortedEvents.map(event => createEventElement(event, 'manager')).join('') 
+                    : `<p class="text-center text-gray-500 py-4">Aucun constat à afficher.</p>`;
+            }
+            lucide.createIcons(); // Redessiner les icônes après mise à jour du DOM
+        };
+
+        const createEventElement = (event, role) => {
+            // Génère le HTML pour une carte de constat
+            const statusInfo = getStatusInfo(event.status);
+            const photoHtml = event.photo ? `<div class="mt-4"><img src="${event.photo}" alt="Photo du constat" class="max-h-32 rounded-lg cursor-pointer image-thumbnail shadow-sm hover:shadow-md transition-shadow" data-src="${event.photo}"></div>` : '';
+            const dateStr = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(event.timestamp);
+
+            if (role === 'manager') {
+                const statusOptions = ['Nouveau', 'En cours', 'Résolu'].map(s => `<option value="${s}" ${event.status === s ? 'selected' : ''}>${s}</option>`).join('');
+                return `
+                    <div class="p-4 border rounded-lg bg-white shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-md pr-4">${event.title}</h4>
+                            <select data-event-id="${event.id}" class="status-select text-xs font-medium rounded-full py-1 border-0 focus:ring-2 focus:ring-red-300 ${statusInfo.badge}">${statusOptions}</select>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">${event.description}</p>
+                        ${photoHtml}
+                        <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+                            <span>Par: <strong>${event.user}</strong></span>
+                            <button data-event-id="${event.id}" class="comment-btn text-xs text-red-600 hover:underline">Commentaires (${event.comments.length})</button>
+                            <span>${dateStr}</span>
+                        </div>
+                    </div>`;
+            } else { // Salarié
+                return `
+                    <div class="p-4 border rounded-lg bg-white shadow-sm">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-md pr-4">${event.title}</h4>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusInfo.badge}">${event.status}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">${event.description}</p>
+                        ${photoHtml}
+                        <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+                            <button data-event-id="${event.id}" class="show-timeline-btn text-xs text-red-600 hover:underline">Voir le suivi</button>
+                            <span>${dateStr}</span>
+                        </div>
+                    </div>`;
+            }
+        };
+
+        // --- Gestion des Modales (Ouvrir/Fermer) ---
+        const openModal = (modal) => {
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.querySelector(':scope > div').classList.remove('scale-95', 'opacity-0'), 10);
+        };
+        const closeModal = (modal) => {
+            const content = modal.querySelector(':scope > div');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        };
+
+        // Écouteurs globaux pour fermer les modales
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('.close-modal-btn')) closeModal(e.target.closest('.fixed'));
+            if (e.target.closest('.cancel-btn')) closeModal(e.target.closest('.fixed'));
+            if (modals.includes(e.target)) closeModal(e.target); // Fermer en cliquant sur le fond
+        });
+        document.getElementById('logout-btn').addEventListener('click', () => window.location.reload());
+        
+        // --- Modale Ajout Constat ---
+        document.getElementById('add-event-btn').addEventListener('click', () => {
+            document.getElementById('event-form').reset();
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('image-preview').src = '#';
+            document.getElementById('event-photo').value = '';
+            openModal(eventModal);
+        });
+
+        document.getElementById('event-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const photoInput = document.getElementById('event-photo');
+            let photoData = null;
+            if (photoInput.files[0]) {
+                // Convertir l'image en base64 pour la sauvegarder (dans une vraie app, on l'uploaderait sur un serveur)
+                photoData = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(photoInput.files[0]);
+                });
+            }
+            const timestamp = new Date();
+            const newEvent = {
+                id: Math.max(0, ...state.events.map(e => e.id)) + 1,
+                title: document.getElementById('event-title').value,
+                description: document.getElementById('event-description').value,
+                timestamp, 
+                user: state.currentUserName, 
+                status: 'Nouveau', 
+                photo: photoData,
+                history: [{ status: 'Nouveau', timestamp, changedBy: state.currentUserName }],
+                comments: []
+            };
+            state.events.push(newEvent);
+            renderApp();
+            closeModal(eventModal);
+        });
+
+        // --- Gestion Upload Photo & Visionneuse ---
+        const photoInput = document.getElementById('event-photo');
+        const uploadZone = document.getElementById('image-upload-zone');
+        
+        const handlePhotoFile = (file) => {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('image-preview').src = e.target.result;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+        photoInput.addEventListener('change', (e) => handlePhotoFile(e.target.files[0]));
+        // Drag & Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => uploadZone.addEventListener(eName, e => {e.preventDefault(); e.stopPropagation();}));
+        ['dragenter', 'dragover'].forEach(eName => uploadZone.addEventListener(eName, () => uploadZone.classList.add('bg-red-50', 'border-red-400')));
+        ['dragleave', 'drop'].forEach(eName => uploadZone.addEventListener(eName, () => uploadZone.classList.remove('bg-red-50', 'border-red-400')));
+        uploadZone.addEventListener('drop', e => { 
+            const file = e.dataTransfer.files[0];
+            photoInput.files = e.dataTransfer.files; // Assigner le fichier à l'input
+            handlePhotoFile(file);
+        });
+        // Retirer image
+        document.getElementById('remove-image-btn').addEventListener('click', () => {
+            photoInput.value = '';
+            document.getElementById('image-preview').src = '#';
+            document.getElementById('image-preview-container').classList.add('hidden');
+        });
+        // Visionneuse
+        document.body.addEventListener('click', e => {
+            if (e.target.classList.contains('image-thumbnail')) {
+                document.getElementById('full-image').src = e.target.dataset.src;
+                openModal(imageViewerModal);
+            }
+        });
+
+        // --- Actions Manager : Changement Statut & Commentaires ---
+        document.getElementById('manager-log-list').addEventListener('change', (e) => {
+            // Changement de statut
+            if (e.target.classList.contains('status-select')) {
+                const eventId = parseInt(e.target.dataset.eventId);
+                const newStatus = e.target.value;
+                const event = state.events.find(ev => ev.id === eventId);
+                if (event && event.status !== newStatus) {
+                    event.status = newStatus;
+                    event.history.push({ status: newStatus, timestamp: new Date(), changedBy: state.currentUserName });
+                    renderApp(); // Redessine toute l'app pour refléter le changement
+                }
+            }
+        });
+        document.getElementById('manager-log-list').addEventListener('click', e => {
+            // Clic sur bouton "Commentaires"
+            const btn = e.target.closest('.comment-btn');
+            if (btn) {
+                renderCommentModal(parseInt(btn.dataset.eventId));
+            }
+        });
+        
+        const renderCommentModal = (eventId) => {
+            const event = state.events.find(ev => ev.id === eventId);
+            if (!event) return;
+            document.getElementById('comment-title').textContent = `Commentaires: ${event.title}`;
+            const list = document.getElementById('comment-list');
+            list.innerHTML = event.comments.length > 0 
+                ? [...event.comments].sort((a,b) => b.timestamp - a.timestamp).map(c => 
+                    `<div class="bg-gray-50 p-3 rounded-lg">
+                        <p class="text-sm">${c.text}</p>
+                        <p class="text-xs text-gray-500 mt-1"><strong>${c.author}</strong> - ${new Intl.DateTimeFormat('fr-FR', {dateStyle:'short', timeStyle:'short'}).format(c.timestamp)}</p>
+                    </div>`
+                  ).join('')
+                : `<p class="text-sm text-gray-500 text-center">Aucun commentaire pour l'instant.</p>`;
+            
+            const form = document.getElementById('comment-form');
+            form.dataset.eventId = eventId; // Stocker l'ID sur le formulaire
+            form.reset();
+            openModal(commentModal);
+        };
+
+        document.getElementById('comment-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const eventId = parseInt(e.currentTarget.dataset.eventId);
+            const event = state.events.find(ev => ev.id === eventId);
+            const text = document.getElementById('new-comment').value;
+            if(event && text.trim() !== ""){
+                event.comments.push({ text, author: state.currentUserName, timestamp: new Date() });
+                renderCommentModal(eventId); // Re-dessine la modale (liste de commentaires + reset formulaire)
+                renderApp(); // Re-dessine l'app principale (pour mettre à jour le compteur de commentaires)
+            }
+        });
+
+        // --- Action Salarié : Voir Timeline ---
+        document.getElementById('salarié-log-list').addEventListener('click', (e) => {
+            const btn = e.target.closest('.show-timeline-btn');
+            if (btn) {
+                renderTimelineModal(parseInt(btn.dataset.eventId));
+            }
+        });
+
+        const renderTimelineModal = (eventId) => {
+            const event = state.events.find(ev => ev.id === eventId);
+            if (!event) return;
+            document.getElementById('timeline-title').textContent = `Suivi: ${event.title}`;
+            
+            // Fusionner l'historique des statuts et les commentaires en une seule liste
+            const history = event.history.map(h => ({...h, type: 'status'}));
+            const comments = event.comments.map(c => ({...c, type: 'comment'}));
+            const timelineItems = [...history, ...comments].sort((a,b) => b.timestamp - a.timestamp);
+
+            const content = document.getElementById('timeline-content');
+            content.innerHTML = timelineItems.map(item => {
+                let icon, text, author, date;
+                date = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short' }).format(item.timestamp);
+                
+                if(item.type === 'status'){
+                    icon = getStatusInfo(item.status).icon;
+                    text = `Statut changé à <strong>${item.status}</strong>`;
+                    author = item.changedBy;
+                } else { // Commentaire
+                    icon = 'message-circle';
+                    text = `<em class="text-gray-700">"${item.text}"</em>`;
+                    author = item.author;
+                }
+
+                return `
+                    <div class="flex timeline-item">
+                        <div class="flex flex-col items-center mr-4">
+                            <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                                <i data-lucide="${icon}" class="h-4 w-4 text-gray-600"></i>
+                            </div>
+                            <div class="w-px h-full bg-gray-300 timeline-line"></div>
+                        </div>
+                        <div class="pb-8">
+                            <p class="mb-1 text-sm">${text}</p>
+                            <p class="text-xs text-gray-500">${date} par <strong>${author}</strong></p>
+                        </div>
+                    </div>`;
+            }).join('');
+            
+            lucide.createIcons(); // Recréer les icônes dans la modale
+            openModal(timelineModal);
+        };
+    });
+    </script>
+</body>
+</html>
