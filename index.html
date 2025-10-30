@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- MODIFIÉ: Titre de la page -->
     <title>Main courante DTS - La Villette</title>
     <!-- Tailwind CSS -->
@@ -11,6 +11,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Client Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Bibliothèque pour convertir les HEIC -->
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.3/dist/heic2any.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -19,73 +21,107 @@
         /* Z-index pour les modales au-dessus du menu mobile (z-40) */
         #event-modal, #timeline-modal, #comment-modal, #delete-modal { z-index: 50; }
         #image-viewer-modal { z-index: 60; }
-        
+
         #image-viewer-modal, #event-modal, #timeline-modal, #comment-modal, #delete-modal { transition: opacity 0.3s ease; }
         #image-viewer-modal > div, #event-modal > div, #timeline-modal > div, #comment-modal > div, #delete-modal > div { transition: all 0.3s ease; }
         #full-image { max-width: 90vw; max-height: 90vh; }
         .timeline-item:last-child .timeline-line { display: none; }
 
-        /* Styles pour le défilement des modales sur mobile */
+        /* MODIFIÉ: Styles pour le défilement des modales sur mobile */
         .modal-body-container {
             display: flex;
             flex-direction: column;
             width: 100%;
-            max-width: 28rem; /* max-w-lg */
+            max-width: 28rem;
             margin: 1rem;
-            max-height: 90vh; /* Hauteur max pour mobile */
+            max-height: 80vh;
             background-color: white;
-            border-radius: 0.5rem; /* rounded-lg */
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             transform: scale(0.95);
             opacity: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 1rem;
         }
+
         .modal-body-container-open {
             transform: scale(1);
             opacity: 1;
         }
-        @media (min-width: 640px) { /* sm: */
+
+        @media (min-width: 640px) {
             .modal-body-container.modal-lg {
-                max-width: 42rem; /* max-w-2xl */
+                max-width: 42rem;
             }
         }
+
         .modal-content-scrollable {
-            overflow-y: auto; /* Active le défilement ici */
-            padding: 1.5rem; /* p-6 */
+            padding: 1.5rem;
+            flex-grow: 1;
         }
-        .modal-header, .modal-footer {
-            flex-shrink: 0; /* Empêche le header/footer de rétrécir */
-            padding: 1.5rem; /* p-6 */
-        }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            flex-shrink: 0;
         }
+
         .modal-footer {
             display: flex;
             justify-content: flex-end;
-            space-x: 1rem; /* space-x-4 */
-            border-top: 1px solid #e5e7eb; /* border-gray-200 */
-            background-color: #f9fafb; /* bg-gray-50 */
+            space-x: 1rem;
+            border-top: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            padding: 1rem;
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
         }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-
     <!-- Écran de connexion -->
     <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl p-6 m-4 w-full max-w-sm">
-            <div class="text-center mb-6 flex flex-col items-center"><div class="flex items-center justify-center h-12 mb-4"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-7 h-10"><svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div>
+            <div class="text-center mb-6 flex flex-col items-center">
+                <div class="flex items-center justify-center h-12 mb-4">
+                    <div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo">
+                        <span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span>
+                        <div class="relative w-7 h-10">
+                            <svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span>
+                    </div>
+                </div>
                 <!-- MODIFIÉ: Titre sur la modale de connexion -->
                 <h2 class="mt-4 text-2xl font-bold text-gray-900">Main courante DTS</h2>
-                <p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle.</p></div>
+                <p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle.</p>
+            </div>
             <form id="login-form">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Je suis un :</label>
                     <div class="flex items-center justify-center space-x-4">
-                        <label for="role-collaborateur" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-collaborateur" name="role" value="collaborateur" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="text-gray-700">Collaborateur</span></label>
-                        <label for="role-manager" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-manager" name="role" value="manager" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="text-gray-700">Manager</span></label>
+                        <label for="role-collaborateur" class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" id="role-collaborateur" name="role" value="collaborateur" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked>
+                            <span class="text-gray-700">Collaborateur</span>
+                        </label>
+                        <label for="role-manager" class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" id="role-manager" name="role" value="manager" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500">
+                            <span class="text-gray-700">Manager</span>
+                        </label>
                     </div>
                 </div>
                 <div id="access-code-wrapper" class="hidden">
@@ -103,24 +139,49 @@
     <!-- Conteneur principal de l'application -->
     <div id="app-container" class="hidden">
         <div class="flex h-screen bg-gray-100">
-            
             <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
-
-            <aside id="sidebar" class="w-64 bg-white shadow-md flex flex-col fixed inset-y-0 left-0 z-40
-                                     lg:sticky lg:translate-x-0
-                                     transform -translate-x-full transition-transform duration-300 ease-in-out">
-                <div class="p-6 border-b flex items-center justify-center"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-6 h-8"><svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div>
+            <aside id="sidebar" class="w-64 bg-white shadow-md flex flex-col fixed inset-y-0 left-0 z-40 lg:sticky lg:translate-x-0 transform -translate-x-full transition-transform duration-300 ease-in-out">
+                <div class="p-6 border-b flex items-center justify-center">
+                    <div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo">
+                        <span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span>
+                        <div class="relative w-6 h-8">
+                            <svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span>
+                    </div>
+                </div>
                 <div class="flex-1 p-4 space-y-2">
-                    <button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"><i data-lucide="plus-circle"></i><span>Nouveau Constat</span></button>
+                    <button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Nouveau Constat</span>
+                    </button>
                 </div>
                 <div class="p-4 border-t">
-                    <div class="flex items-center space-x-3"><div class="p-2 bg-gray-200 rounded-full text-gray-600"><i data-lucide="user"></i></div><div><p id="user-name" class="font-semibold text-sm">Collaborateur</p><p id="user-role" class="text-xs text-gray-500 capitalize">Collaborateur</p></div></div>
-                    <button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg"><i data-lucide="log-out" class="h-4 w-4"></i><span>Déconnexion</span></button>
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-gray-200 rounded-full text-gray-600">
+                            <i data-lucide="user"></i>
+                        </div>
+                        <div>
+                            <p id="user-name" class="font-semibold text-sm">Collaborateur</p>
+                            <p id="user-role" class="text-xs text-gray-500 capitalize">Collaborateur</p>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg">
+                        <i data-lucide="log-out" class="h-4 w-4"></i>
+                        <span>Déconnexion</span>
+                    </button>
                 </div>
             </aside>
-            
+
             <div class="flex-1 flex flex-col overflow-hidden">
-                
                 <header class="lg:hidden bg-white shadow-sm sticky top-0 z-20">
                     <div class="flex justify-between items-center p-4">
                         <button id="menu-toggle-btn" class="text-gray-700 p-2 rounded-md hover:bg-gray-100">
@@ -128,16 +189,50 @@
                         </button>
                         <div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo">
                             <span class="text-2xl font-black tracking-tighter" style="margin-right: -1px;">la</span>
-                            <div class="relative w-5 h-7"><svg class="absolute w-full h-full" style="top: -4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg><svg class="absolute w-full h-full" style="top: -0px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg><svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                            <div class="relative w-5 h-7">
+                                <svg class="absolute w-full h-full" style="top: -4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                                <svg class="absolute w-full h-full" style="top: -0px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                                <svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </div>
                             <span class="text-2xl font-black tracking-tighter" style="margin-left: -1px;">illette</span>
                         </div>
-                        <div class="w-8"></div> <!-- Espace pour centrer le logo -->
+                        <div class="w-8"></div>
                     </div>
                 </header>
-
                 <main class="flex-1 p-4 md:p-8 overflow-y-auto no-scrollbar">
-                    <div id="collaborateur-view" class="page hidden"><h2 class="text-2xl md:text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-4 md:p-6 rounded-lg shadow-sm"><div id="collaborateur-log-list" class="space-y-4"></div></div></div>
-                    <div id="manager-view" class="page hidden"><h2 class="text-2xl md:text-3xl font-bold mb-6">Tableau de bord Manager</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div></div><div class="mt-8 bg-white p-4 md:p-6 rounded-lg shadow-sm"><h3 class="text-xl font-bold mb-4">Tous les constats</h3><div id="manager-log-list" class="space-y-4"></div></div></div>
+                    <div id="collaborateur-view" class="page hidden">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6">Mes constats</h2>
+                        <div class="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+                            <div id="collaborateur-log-list" class="space-y-4"></div>
+                        </div>
+                    </div>
+                    <div id="manager-view" class="page hidden">
+                        <h2 class="text-2xl md:text-3xl font-bold mb-6">Tableau de bord Manager</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">Nouveaux constats</p>
+                                <p id="stats-new" class="text-2xl font-bold">0</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">En cours de traitement</p>
+                                <p id="stats-in-progress" class="text-2xl font-bold">0</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-500">Constats résolus</p>
+                                <p id="stats-resolved" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="mt-8 bg-white p-4 md:p-6 rounded-lg shadow-sm">
+                            <h3 class="text-xl font-bold mb-4">Tous les constats</h3>
+                            <div id="manager-log-list" class="space-y-4"></div>
+                        </div>
+                    </div>
                 </main>
             </div>
         </div>
@@ -148,13 +243,40 @@
         <div class="modal-body-container modal-lg">
             <div class="modal-header">
                 <h3 class="text-2xl font-bold">Signaler un nouveau constat</h3>
-                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800">
+                    <i data-lucide="x" class="h-6 w-6"></i>
+                </button>
             </div>
             <form id="event-form">
                 <div class="modal-content-scrollable">
-                    <div><label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label><input type="text" id="event-title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Fuite d'eau couloir B"></div>
-                    <div class="mt-6"><label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea id="event-description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajoutez les détails..."></textarea></div>
-                    <div class="mt-6"><label class="block text-sm font-medium text-gray-700 mb-1">Photo (optionnel)</label><div id="image-upload-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div class="space-y-1 text-center"><i data-lucide="image" class="mx-auto h-12 w-12 text-gray-400"></i><div class="flex text-sm text-gray-600"><label for="event-photo" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500"><span>Téléchargez un fichier</span><input id="event-photo" type="file" class="sr-only" accept="image/*"></label><p class="pl-1">ou glissez-déposez</p></div><p class="text-xs text-gray-500">PNG, JPG, GIF</p></div></div><div id="image-preview-container" class="mt-4 hidden text-center"><img id="image-preview" src="#" alt="Aperçu" class="max-h-32 mx-auto rounded-lg shadow-sm"/><button id="remove-image-btn" type="button" class="mt-2 text-sm text-red-600 hover:text-red-800">Retirer</button></div></div>
+                    <div>
+                        <label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label>
+                        <input type="text" id="event-title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Fuite d'eau couloir B">
+                    </div>
+                    <div class="mt-6">
+                        <label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="event-description" rows="4" required inputmode="text" enterkeyhint="done" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajoutez les détails..."></textarea>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Photo (optionnel)</label>
+                        <div id="image-upload-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <i data-lucide="image" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="event-photo" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500">
+                                        <span>Téléchargez un fichier</span>
+                                        <input id="event-photo" type="file" class="sr-only" accept="image/jpeg, image/png, image/gif, image/heic, image/heif">
+                                    </label>
+                                    <p class="pl-1">ou glissez-déposez</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF, HEIC</p>
+                            </div>
+                        </div>
+                        <div id="image-preview-container" class="mt-4 hidden text-center">
+                            <img id="image-preview" src="#" alt="Aperçu" class="max-h-32 mx-auto rounded-lg shadow-sm"/>
+                            <button id="remove-image-btn" type="button" class="mt-2 text-sm text-red-600 hover:text-red-800">Retirer</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button>
@@ -163,16 +285,23 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Visionneuse d'image -->
-    <div id="image-viewer-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden"><div class="modal-body-container-open"><img id="full-image" src="" alt="Photo du constat en grand" class="rounded-lg shadow-2xl"/><button class="close-modal-btn absolute top-4 right-4 text-white text-3xl font-bold">&times;</button></div></div>
-    
+    <div id="image-viewer-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
+        <div class="modal-body-container-open">
+            <img id="full-image" src="" alt="Photo du constat en grand" class="rounded-lg shadow-2xl"/>
+            <button class="close-modal-btn absolute top-4 right-4 text-white text-3xl font-bold">&times;</button>
+        </div>
+    </div>
+
     <!-- Modale Timeline -->
     <div id="timeline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
         <div class="modal-body-container">
             <div class="modal-header">
                 <h3 id="timeline-title" class="text-2xl font-bold">Suivi du constat</h3>
-                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800">
+                    <i data-lucide="x" class="h-6 w-6"></i>
+                </button>
             </div>
             <div class="modal-content-scrollable">
                 <div id="timeline-content"></div>
@@ -186,13 +315,15 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Modale Commentaires Manager -->
     <div id="comment-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
         <div class="modal-body-container">
             <div class="modal-header">
                 <h3 id="comment-title" class="text-2xl font-bold">Commentaires</h3>
-                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800">
+                    <i data-lucide="x" class="h-6 w-6"></i>
+                </button>
             </div>
             <div id="comment-list" class="modal-content-scrollable space-y-4"></div>
             <form id="comment-form" class="modal-footer flex-col items-stretch">
@@ -225,10 +356,21 @@
         </div>
     </div>
 
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
+
+        // Écouteur pour ajuster le padding lorsque le clavier s'ouvre
+        window.addEventListener('resize', () => {
+            const modals = document.querySelectorAll('.modal-body-container');
+            modals.forEach(modal => {
+                if (window.innerHeight < 600) {
+                    modal.style.paddingBottom = '150px';
+                } else {
+                    modal.style.paddingBottom = '0';
+                }
+            });
+        });
 
         // --- Initialisation de Supabase ---
         const SUPABASE_URL = 'https://pixjlysnfnqbtwhovuwb.supabase.co';
@@ -238,7 +380,7 @@
         // --- État Global ---
         const state = { currentUserRole: null, currentUserName: null, allConstats: [] };
         const correctManagerCode = 'DTNDMM2025';
-        
+
         // --- Éléments DOM ---
         const loginModal = document.getElementById('login-modal');
         const appContainer = document.getElementById('app-container');
@@ -248,16 +390,14 @@
         const commentModal = document.getElementById('comment-modal');
         const deleteModal = document.getElementById('delete-modal');
         const modals = [eventModal, imageViewerModal, timelineModal, commentModal, deleteModal];
-
         const sidebar = document.getElementById('sidebar');
         const menuToggleBtn = document.getElementById('menu-toggle-btn');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
-        
+
         const toggleSidebar = () => {
             sidebar.classList.toggle('-translate-x-full');
             sidebarOverlay.classList.toggle('hidden');
         };
-
         menuToggleBtn.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
@@ -266,13 +406,13 @@
         const accessCodeWrapper = document.getElementById('access-code-wrapper');
         const accessCodeInput = document.getElementById('access-code');
         const roleRadios = document.querySelectorAll('input[name="role"]');
-        
+
         roleRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
                 if (e.target.value === 'manager') {
                     accessCodeWrapper.classList.remove('hidden');
                     accessCodeInput.required = true;
-                } else { // collaborateur
+                } else {
                     accessCodeWrapper.classList.add('hidden');
                     accessCodeInput.required = false;
                 }
@@ -284,13 +424,12 @@
             const selectedRole = document.querySelector('input[name="role"]:checked').value;
             const enteredCode = accessCodeInput.value;
             let isLoginSuccessful = false;
-            
+
             if (selectedRole === 'collaborateur') {
-                isLoginSuccessful = true; // Accès direct
+                isLoginSuccessful = true;
             } else if (selectedRole === 'manager' && enteredCode === correctManagerCode) {
                 isLoginSuccessful = true;
             }
-
             if (isLoginSuccessful) {
                 loginModal.classList.add('hidden');
                 appContainer.classList.remove('hidden');
@@ -307,13 +446,13 @@
             state.currentUserName = role === 'manager' ? 'Manager' : 'Collaborateur';
             document.getElementById('user-name').textContent = state.currentUserName;
             document.getElementById('user-role').textContent = role.charAt(0).toUpperCase() + role.slice(1);
-            
+
             fetchAndRenderAllData();
-            
+
             const channel = supabaseClient.channel('public-changes')
                 .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
                     console.log('Changement détecté!', payload);
-                    fetchAndRenderAllData(); 
+                    fetchAndRenderAllData();
                 })
                 .subscribe();
         };
@@ -324,11 +463,13 @@
                 .from('constats')
                 .select(`*, actions_suivi (*)`)
                 .order('created_at', { ascending: false });
+            if (error) {
+                console.error('Erreur de récupération:', error);
+                return;
+            }
 
-            if (error) { console.error('Erreur de récupération:', error); return; }
-            
-            state.allConstats = constats; 
-            renderApp(constats); 
+            state.allConstats = constats;
+            renderApp(constats);
         };
 
         // --- Fonctions de Rendu ---
@@ -344,20 +485,20 @@
         const renderApp = (constats) => {
             document.getElementById('collaborateur-view').classList.toggle('hidden', state.currentUserRole !== 'collaborateur');
             document.getElementById('manager-view').classList.toggle('hidden', state.currentUserRole !== 'manager');
-            
+
             if (state.currentUserRole === 'collaborateur') {
                 const logList = document.getElementById('collaborateur-log-list');
                 const userEvents = constats.filter(e => e.user === state.currentUserName);
-                logList.innerHTML = userEvents.length > 0 
-                    ? userEvents.map(event => createEventElement(event, 'collaborateur')).join('') 
+                logList.innerHTML = userEvents.length > 0
+                    ? userEvents.map(event => createEventElement(event, 'collaborateur')).join('')
                     : `<p class="text-center text-gray-500 py-4">Vous n'avez soumis aucun constat.</p>`;
-            } else { // Manager
+            } else {
                 document.getElementById('stats-new').textContent = constats.filter(e => e.status === 'Nouveau').length;
                 document.getElementById('stats-in-progress').textContent = constats.filter(e => e.status === 'En cours').length;
                 document.getElementById('stats-resolved').textContent = constats.filter(e => e.status === 'Résolu').length;
                 const logList = document.getElementById('manager-log-list');
-                logList.innerHTML = constats.length > 0 
-                    ? constats.map(event => createEventElement(event, 'manager')).join('') 
+                logList.innerHTML = constats.length > 0
+                    ? constats.map(event => createEventElement(event, 'manager')).join('')
                     : `<p class="text-center text-gray-500 py-4">Aucun constat à afficher.</p>`;
             }
             lucide.createIcons();
@@ -368,7 +509,6 @@
             const photoHtml = event.photo_url ? `<div class="mt-4"><img src="${event.photo_url}" alt="Photo" class="max-h-32 rounded-lg cursor-pointer image-thumbnail shadow-sm" data-src="${event.photo_url}"></div>` : '';
             const dateStr = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(event.created_at));
             const commentCount = event.actions_suivi.filter(a => a.type === 'comment').length;
-
             if (role === 'manager') {
                 const statusOptions = ['Nouveau', 'En cours', 'Résolu'].map(s => `<option value="${s}" ${event.status === s ? 'selected' : ''}>${s}</option>`).join('');
                 return `
@@ -388,31 +528,39 @@
                             <span>${dateStr}</span>
                         </div>
                     </div>`;
-            } else { // Collaborateur
+            } else {
                 return `
                     <div class="p-4 border rounded-lg bg-white shadow-sm">
-                        <div class="flex justify-between items-start"><h4 class="font-bold pr-4">${event.title}</h4><span class="px-2 py-1 rounded-full text-xs font-medium ${statusInfo.badge}">${event.status}</span></div>
-                        <p class="text-sm text-gray-600 mt-2">${event.description}</p>${photoHtml}
-                        <div class="mt-3 flex items-center justify-between text-xs text-gray-500"><button data-event-id="${event.id}" class="show-timeline-btn text-xs text-red-600 hover:underline">Voir le suivi</button><span>${dateStr}</span></div>
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold pr-4">${event.title}</h4>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${statusInfo.badge}">${event.status}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">${event.description}</p>
+                        ${photoHtml}
+                        <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+                            <button data-event-id="${event.id}" class="show-timeline-btn text-xs text-red-600 hover:underline">Voir le suivi</button>
+                            <span>${dateStr}</span>
+                        </div>
                     </div>`;
             }
         };
 
         // --- Gestion Modales ---
-        const openModal = (modal) => { 
-            modal.classList.remove('hidden'); 
+        const openModal = (modal) => {
+            modal.classList.remove('hidden');
             setTimeout(() => {
                 const modalBody = modal.querySelector('.modal-body-container, .modal-body-container-open');
                 if (modalBody) modalBody.classList.add('modal-body-container-open');
-                else modal.querySelector(':scope > div').classList.remove('scale-95', 'opacity-0'); // Fallback
-            }, 10); 
+                else modal.querySelector(':scope > div').classList.remove('scale-95', 'opacity-0');
+            }, 10);
         };
-        const closeModal = (modal) => { 
+
+        const closeModal = (modal) => {
             const modalBody = modal.querySelector('.modal-body-container, .modal-body-container-open');
             if (modalBody) modalBody.classList.remove('modal-body-container-open');
-            else modal.querySelector(':scope > div').classList.add('scale-95', 'opacity-0'); // Fallback
-            
-            setTimeout(() => modal.classList.add('hidden'), 300); 
+            else modal.querySelector(':scope > div').classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
         document.body.addEventListener('click', (e) => {
@@ -420,14 +568,14 @@
             if (e.target.closest('.cancel-btn')) closeModal(e.target.closest('.fixed'));
             if (modals.includes(e.target)) closeModal(e.target);
         });
-        
+
         document.getElementById('logout-btn').addEventListener('click', () => {
             if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
                 toggleSidebar();
             }
             window.location.reload();
         });
-        
+
         // --- Modale Ajout Constat ---
         document.getElementById('add-event-btn').addEventListener('click', () => {
             if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
@@ -439,39 +587,105 @@
             document.getElementById('event-photo').value = '';
             openModal(eventModal);
         });
+
+        // MODIFIÉ: Gestion de l'upload de photo avec conversion HEIC
+        const handlePhotoFile = async (file) => {
+            if (!file) return;
+
+            // Vérifier la taille du fichier (max 5 Mo)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert("La taille de l'image dépasse 5 Mo. Veuillez choisir une image plus petite.");
+                return;
+            }
+
+            // Convertir HEIC en JPEG si nécessaire
+            if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
+                try {
+                    const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg' });
+                    file = new File([convertedBlob], 'converted.jpg', { type: 'image/jpeg' });
+                } catch (error) {
+                    console.error("Erreur de conversion HEIC :", error);
+                    alert("Impossible de convertir l'image. Veuillez choisir une autre image.");
+                    return;
+                }
+            }
+
+            // Lire et afficher l'image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('image-preview').src = e.target.result;
+                document.getElementById('image-preview-container').classList.remove('hidden');
+                // Défile vers le bas pour afficher le bouton "Soumettre"
+                setTimeout(() => {
+                    const modal = document.querySelector('#event-modal .modal-body-container');
+                    if (modal) {
+                        modal.scrollTop = modal.scrollHeight;
+                    }
+                }, 300);
+            };
+            reader.readAsDataURL(file);
+        };
+
         document.getElementById('event-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
             submitButton.disabled = true;
             submitButton.textContent = 'Envoi...';
+
             const photoInput = document.getElementById('event-photo');
             const file = photoInput.files[0];
             let photo_url = null;
+
             try {
                 if (file) {
                     const filePath = `public/${Date.now()}-${file.name}`;
-                    const { data: uploadData, error: uploadError } = await supabaseClient.storage.from('constats').upload(filePath, file);
-                    if (uploadError) throw uploadError;
+                    const { data: uploadData, error: uploadError } = await supabaseClient
+                        .storage
+                        .from('constats')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw new Error("Erreur lors de l'upload de l'image. Veuillez réessayer.");
+
                     const { data: urlData } = supabaseClient.storage.from('constats').getPublicUrl(filePath);
                     photo_url = urlData.publicUrl;
                 }
+
                 const { data: newConstat, error: constatError } = await supabaseClient
                     .from('constats')
-                    .insert({ title: document.getElementById('event-title').value, description: document.getElementById('event-description').value, user: state.currentUserName, status: 'Nouveau', photo_url: photo_url })
-                    .select().single();
-                if (constatError) throw constatError;
+                    .insert({
+                        title: document.getElementById('event-title').value,
+                        description: document.getElementById('event-description').value,
+                        user: state.currentUserName,
+                        status: 'Nouveau',
+                        photo_url: photo_url
+                    })
+                    .select()
+                    .single();
+
+                if (constatError) throw new Error("Erreur lors de la création du constat. Veuillez réessayer.");
+
                 const { error: actionError } = await supabaseClient
                     .from('actions_suivi')
-                    .insert({ constat_id: newConstat.id, author: state.currentUserName, type: 'status_change', content: 'Nouveau' });
-                if (actionError) throw actionError;
+                    .insert({
+                        constat_id: newConstat.id,
+                        author: state.currentUserName,
+                        type: 'status_change',
+                        content: 'Nouveau'
+                    });
+
+                if (actionError) throw new Error("Erreur lors de l'enregistrement du suivi. Veuillez réessayer.");
+
                 closeModal(eventModal);
             } catch (error) {
-                console.error('Erreur création constat:', error); alert('Erreur: ' + error.message);
+                console.error('Erreur :', error);
+                alert(error.message);
             } finally {
-                submitButton.disabled = false; submitButton.textContent = 'Soumettre';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Soumettre';
             }
         });
-        
+
         const getStoragePathFromUrl = (url) => {
             if (!url) return null;
             try {
@@ -483,18 +697,35 @@
                 return null;
             }
         }
-        
+
         // --- Gestion Upload Photo ---
         const photoInput = document.getElementById('event-photo');
         const uploadZone = document.getElementById('image-upload-zone');
-        const handlePhotoFile = (file) => { if (file) { const reader = new FileReader(); reader.onload = e => { document.getElementById('image-preview').src = e.target.result; document.getElementById('image-preview-container').classList.remove('hidden'); }; reader.readAsDataURL(file); } };
+
         photoInput.addEventListener('change', (e) => handlePhotoFile(e.target.files[0]));
+
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => uploadZone.addEventListener(eName, e => {e.preventDefault(); e.stopPropagation();}));
         ['dragenter', 'dragover'].forEach(eName => uploadZone.addEventListener(eName, () => uploadZone.classList.add('bg-red-50', 'border-red-400')));
-        ['dragleave', 'drop'].forEach(eName => uploadZone.addEventListener(eName, () => uploadZone.classList.remove('bg-red-50', 'border-red-400')));
-        uploadZone.addEventListener('drop', e => { const file = e.dataTransfer.files[0]; photoInput.files = e.dataTransfer.files; handlePhotoFile(file); });
-        document.getElementById('remove-image-btn').addEventListener('click', () => { photoInput.value = ''; document.getElementById('image-preview').src = '#'; document.getElementById('image-preview-container').classList.add('hidden'); });
-        document.body.addEventListener('click', e => { if (e.target.classList.contains('image-thumbnail')) { document.getElementById('full-image').src = e.target.dataset.src; openModal(imageViewerModal); } });
+        ['dragleave', 'drop'].forEach(eName => uploadZone.addEventListener(eName, () => uploadZone.classList.remove('bg-red-50', 'border-red-40')));
+
+        uploadZone.addEventListener('drop', e => {
+            const file = e.dataTransfer.files[0];
+            photoInput.files = e.dataTransfer.files;
+            handlePhotoFile(file);
+        });
+
+        document.getElementById('remove-image-btn').addEventListener('click', () => {
+            photoInput.value = '';
+            document.getElementById('image-preview').src = '#';
+            document.getElementById('image-preview-container').classList.add('hidden');
+        });
+
+        document.body.addEventListener('click', e => {
+            if (e.target.classList.contains('image-thumbnail')) {
+                document.getElementById('full-image').src = e.target.dataset.src;
+                openModal(imageViewerModal);
+            }
+        });
 
         // --- Actions Manager ---
         document.getElementById('manager-log-list').addEventListener('change', async (e) => {
@@ -508,19 +739,22 @@
                         if (updateError) throw updateError;
                         const { error: actionError } = await supabaseClient.from('actions_suivi').insert({ constat_id: eventId, author: state.currentUserName, type: 'status_change', content: newStatus });
                         if (actionError) throw actionError;
-                    } catch (error) { console.error('Erreur changement statut:', error); alert('Erreur: ' + error.message); }
+                    } catch (error) {
+                        console.error('Erreur changement statut:', error);
+                        alert('Erreur: ' + error.message);
+                    }
                 }
             }
         });
-        
+
         document.getElementById('manager-log-list').addEventListener('click', e => {
             const commentBtn = e.target.closest('.comment-btn');
-            if (commentBtn) { 
-                const event = state.allConstats.find(ev => ev.id === parseInt(commentBtn.dataset.eventId)); 
+            if (commentBtn) {
+                const event = state.allConstats.find(ev => ev.id === parseInt(commentBtn.dataset.eventId));
                 if (event) renderCommentModal(event);
                 return;
             }
-            
+
             const deleteBtn = e.target.closest('.delete-btn');
             if (deleteBtn) {
                 const eventId = parseInt(deleteBtn.dataset.eventId);
@@ -533,16 +767,18 @@
                 }
             }
         });
-        
+
         const renderCommentModal = (event) => {
             document.getElementById('comment-title').textContent = `Commentaires: ${event.title}`;
             const list = document.getElementById('comment-list');
             const comments = event.actions_suivi.filter(a => a.type === 'comment').sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
             list.innerHTML = comments.length > 0 ? comments.map(c => `<div class="bg-gray-50 p-3 rounded-lg"><p class="text-sm">${c.content}</p><p class="text-xs text-gray-500 mt-1"><strong>${c.author}</strong> - ${new Intl.DateTimeFormat('fr-FR', {dateStyle:'short', timeStyle:'short'}).format(new Date(c.created_at))}</p></div>`).join('') : `<p class="text-sm text-gray-500 text-center">Aucun commentaire.</p>`;
             const form = document.getElementById('comment-form');
-            form.dataset.eventId = event.id; form.reset(); openModal(commentModal);
+            form.dataset.eventId = event.id;
+            form.reset();
+            openModal(commentModal);
         };
-        
+
         document.getElementById('comment-form').addEventListener('submit', async e => {
             e.preventDefault();
             const eventId = parseInt(e.currentTarget.dataset.eventId);
@@ -556,7 +792,10 @@
                     const index = state.allConstats.findIndex(e => e.id === eventId);
                     if (index > -1) state.allConstats[index] = updatedEvent;
                     renderCommentModal(updatedEvent);
-                } catch (error) { console.error('Erreur ajout commentaire:', error); alert('Erreur: ' + error.message); }
+                } catch (error) {
+                    console.error('Erreur ajout commentaire:', error);
+                    alert('Erreur: ' + error.message);
+                }
             }
         });
 
@@ -564,7 +803,6 @@
             const submitButton = e.currentTarget;
             const eventId = parseInt(submitButton.dataset.eventId);
             if (!eventId) return;
-
             const event = state.allConstats.find(ev => ev.id === eventId);
             if (!event) return;
 
@@ -572,18 +810,20 @@
             submitButton.disabled = true;
             submitButton.textContent = 'Suppression...';
 
-            const photoPath = getStoragePathFromUrl(event.photo_url);
-
             try {
                 const { error: actionsError } = await supabaseClient.from('actions_suivi').delete().eq('constat_id', eventId);
                 if (actionsError) throw actionsError;
+
+                const photoPath = getStoragePathFromUrl(event.photo_url);
                 if (photoPath) {
                     const { error: storageError } = await supabaseClient.storage.from('constats').remove([photoPath]);
                     if (storageError) console.warn('Erreur suppression photo:', storageError.message);
                 }
+
                 const { error: constatError } = await supabaseClient.from('constats').delete().eq('id', eventId);
                 if (constatError) throw constatError;
-                closeModal(deleteModal); 
+
+                closeModal(deleteModal);
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
                 alert('Erreur: ' + error.message);
@@ -604,7 +844,7 @@
 
         const renderTimelineModal = (event) => {
             document.getElementById('timeline-title').textContent = `Suivi: ${event.title}`;
-            
+
             const timelineItems = [...event.actions_suivi].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
             const content = document.getElementById('timeline-content');
             content.innerHTML = timelineItems.length > 0 ? timelineItems.map(item => {
@@ -613,13 +853,24 @@
                 if(item.type === 'status_change'){
                     icon = getStatusInfo(item.content).icon;
                     text = `Statut changé à <strong>${item.content}</strong>`;
-                } else { // Commentaire
+                } else {
                     icon = 'message-circle';
                     text = `<em class="text-gray-700">"${item.content}"</em>`;
                 }
-                return `<div class="flex timeline-item"><div class="flex flex-col items-center mr-4"><div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"><i data-lucide="${icon}" class="h-4 w-4 text-gray-600"></i></div><div class="w-px h-full bg-gray-300 timeline-line"></div></div><div class="pb-8"><p class="mb-1 text-sm">${text}</p><p class="text-xs text-gray-500">${date} par <strong>${item.author}</strong></p></div></div>`;
+                return `<div class="flex timeline-item">
+                    <div class="flex flex-col items-center mr-4">
+                        <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                            <i data-lucide="${icon}" class="h-4 w-4 text-gray-600"></i>
+                        </div>
+                        <div class="w-px h-full bg-gray-300 timeline-line"></div>
+                    </div>
+                    <div class="pb-8">
+                        <p class="mb-1 text-sm">${text}</p>
+                        <p class="text-xs text-gray-500">${date} par <strong>${item.author}</strong></p>
+                    </div>
+                </div>`;
             }).join('') : `<p class="text-sm text-gray-500 text-center">Aucune action pour le moment.</p>`;
-            
+
             const commentForm = document.getElementById('timeline-comment-form');
             if (state.currentUserRole === 'collaborateur') {
                 commentForm.classList.remove('hidden');
@@ -628,31 +879,29 @@
             } else {
                 commentForm.classList.add('hidden');
             }
-            
+
             lucide.createIcons();
             openModal(timelineModal);
         };
-        
+
         // --- Action Collaborateur : Ajout Commentaire Timeline ---
         document.getElementById('timeline-comment-form').addEventListener('submit', async e => {
             e.preventDefault();
             const eventId = parseInt(e.currentTarget.dataset.eventId);
             const text = document.getElementById('timeline-new-comment').value;
             const submitButton = e.currentTarget.querySelector('button[type="submit"]');
-
             if (text.trim() !== "") {
                 submitButton.disabled = true;
                 submitButton.textContent = 'Envoi...';
                 try {
                     const { error } = await supabaseClient.from('actions_suivi').insert({ constat_id: eventId, author: state.currentUserName, type: 'comment', content: text });
                     if (error) throw error;
-                    
+
                     const { data: updatedEvent, error: fetchError } = await supabaseClient.from('constats').select('*, actions_suivi (*)').eq('id', eventId).single();
                     if (fetchError) throw fetchError;
-
                     const index = state.allConstats.findIndex(e => e.id === eventId);
                     if (index > -1) state.allConstats[index] = updatedEvent;
-                    
+
                     renderTimelineModal(updatedEvent);
                 } catch (error) {
                     console.error('Erreur ajout commentaire:', error);
@@ -667,5 +916,4 @@
     </script>
 </body>
 </html>
-
 
