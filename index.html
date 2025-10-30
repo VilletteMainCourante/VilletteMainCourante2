@@ -16,18 +16,63 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .status-select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
         /* Z-index pour les modales au-dessus du menu mobile (z-40) */
-        #event-modal, #timeline-modal, #comment-modal { z-index: 50; }
+        #event-modal, #timeline-modal, #comment-modal, #delete-modal { z-index: 50; }
         #image-viewer-modal { z-index: 60; }
         
         #image-viewer-modal, #event-modal, #timeline-modal, #comment-modal, #delete-modal { transition: opacity 0.3s ease; }
         #image-viewer-modal > div, #event-modal > div, #timeline-modal > div, #comment-modal > div, #delete-modal > div { transition: all 0.3s ease; }
         #full-image { max-width: 90vw; max-height: 90vh; }
         .timeline-item:last-child .timeline-line { display: none; }
+
+        /* Styles pour le défilement des modales sur mobile */
+        .modal-body-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 28rem; /* max-w-lg */
+            margin: 1rem;
+            max-height: 90vh; /* Hauteur max pour mobile */
+            background-color: white;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* shadow-xl */
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        .modal-body-container-open {
+            transform: scale(1);
+            opacity: 1;
+        }
+        @media (min-width: 640px) { /* sm: */
+            .modal-body-container.modal-lg {
+                max-width: 42rem; /* max-w-2xl */
+            }
+        }
+        .modal-content-scrollable {
+            overflow-y: auto; /* Active le défilement ici */
+            padding: 1.5rem; /* p-6 */
+        }
+        .modal-header, .modal-footer {
+            flex-shrink: 0; /* Empêche le header/footer de rétrécir */
+            padding: 1.5rem; /* p-6 */
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            space-x: 1rem; /* space-x-4 */
+            border-top: 1px solid #e5e7eb; /* border-gray-200 */
+            background-color: #f9fafb; /* bg-gray-50 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <!-- Écran de connexion (inchangé) -->
+    <!-- Écran de connexion -->
     <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl p-6 m-4 w-full max-w-sm">
             <div class="text-center mb-6 flex flex-col items-center"><div class="flex items-center justify-center h-12 mb-4"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-7 h-10"><svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><h2 class="mt-4 text-2xl font-bold text-gray-900">Application de Suivi</h2><p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle.</p></div>
@@ -55,14 +100,11 @@
     <div id="app-container" class="hidden">
         <div class="flex h-screen bg-gray-100">
             
-            <!-- NOUVEAU: Overlay pour le menu mobile -->
             <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
 
-            <!-- MODIFIÉ: Barre latérale (Sidebar) -->
-            <aside id="sidebar" class_remove="lg:relative" class="w-64 bg-white shadow-md flex flex-col fixed inset-y-0 left-0 z-40
+            <aside id="sidebar" class="w-64 bg-white shadow-md flex flex-col fixed inset-y-0 left-0 z-40
                                      lg:sticky lg:translate-x-0
                                      transform -translate-x-full transition-transform duration-300 ease-in-out">
-                <!-- Contenu de la Sidebar (inchangé) -->
                 <div class="p-6 border-b flex items-center justify-center"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-6 h-8"><svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div>
                 <div class="flex-1 p-4 space-y-2">
                     <button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"><i data-lucide="plus-circle"></i><span>Nouveau Constat</span></button>
@@ -73,10 +115,8 @@
                 </div>
             </aside>
             
-            <!-- MODIFIÉ: Conteneur principal (Header mobile + Contenu) -->
             <div class="flex-1 flex flex-col overflow-hidden">
                 
-                <!-- NOUVEAU: Header Mobile -->
                 <header class="lg:hidden bg-white shadow-sm sticky top-0 z-20">
                     <div class="flex justify-between items-center p-4">
                         <button id="menu-toggle-btn" class="text-gray-700 p-2 rounded-md hover:bg-gray-100">
@@ -91,31 +131,95 @@
                     </div>
                 </header>
 
-                <!-- Zone de contenu scrollable -->
                 <main class="flex-1 p-4 md:p-8 overflow-y-auto no-scrollbar">
-                    <div id="collaborateur-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-6 rounded-lg shadow-sm"><div id="collaborateur-log-list" class="space-y-4"></div></div></div>
-                    <div id="manager-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Tableau de bord Manager</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div></div><div class="mt-8 bg-white p-6 rounded-lg shadow-sm"><h3 class="text-xl font-bold mb-4">Tous les constats</h3><div id="manager-log-list" class="space-y-4"></div></div></div>
+                    <div id="collaborateur-view" class="page hidden"><h2 class="text-2xl md:text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-4 md:p-6 rounded-lg shadow-sm"><div id="collaborateur-log-list" class="space-y-4"></div></div></div>
+                    <div id="manager-view" class="page hidden"><h2 class="text-2xl md:text-3xl font-bold mb-6">Tableau de bord Manager</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div></div><div class="mt-8 bg-white p-4 md:p-6 rounded-lg shadow-sm"><h3 class="text-xl font-bold mb-4">Tous les constats</h3><div id="manager-log-list" class="space-y-4"></div></div></div>
                 </main>
             </div>
         </div>
     </div>
 
-    <!-- Modales (inchangées, mais vérification z-index) -->
-    
     <!-- Modale Ajout Constat -->
-    <div id="event-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden"><div class="bg-white rounded-lg shadow-xl p-8 m-4 w-full max-w-2xl transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-bold">Signaler un nouveau constat</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div><form id="event-form"><div><label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label><input type="text" id="event-title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Fuite d'eau couloir B"></div><div class="mt-6"><label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea id="event-description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajoutez les détails..."></textarea></div><div class="mt-6"><label class="block text-sm font-medium text-gray-700 mb-1">Photo (optionnel)</label><div id="image-upload-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div class="space-y-1 text-center"><i data-lucide="image" class="mx-auto h-12 w-12 text-gray-400"></i><div class="flex text-sm text-gray-600"><label for="event-photo" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500"><span>Téléchargez un fichier</span><input id="event-photo" type="file" class="sr-only" accept="image/*"></label><p class="pl-1">ou glissez-déposez</p></div><p class="text-xs text-gray-500">PNG, JPG, GIF</p></div></div><div id="image-preview-container" class="mt-4 hidden text-center"><img id="image-preview" src="#" alt="Aperçu" class="max-h-32 mx-auto rounded-lg shadow-sm"/><button id="remove-image-btn" type="button" class="mt-2 text-sm text-red-600 hover:text-red-800">Retirer</button></div></div><div class="mt-8 flex justify-end space-x-4"><button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button><button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Soumettre</button></div></form></div></div>
+    <div id="event-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="modal-body-container modal-lg">
+            <div class="modal-header">
+                <h3 class="text-2xl font-bold">Signaler un nouveau constat</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <form id="event-form">
+                <div class="modal-content-scrollable">
+                    <div><label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label><input type="text" id="event-title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Fuite d'eau couloir B"></div>
+                    <div class="mt-6"><label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea id="event-description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajoutez les détails..."></textarea></div>
+                    <div class="mt-6"><label class="block text-sm font-medium text-gray-700 mb-1">Photo (optionnel)</label><div id="image-upload-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div class="space-y-1 text-center"><i data-lucide="image" class="mx-auto h-12 w-12 text-gray-400"></i><div class="flex text-sm text-gray-600"><label for="event-photo" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500"><span>Téléchargez un fichier</span><input id="event-photo" type="file" class="sr-only" accept="image/*"></label><p class="pl-1">ou glissez-déposez</p></div><p class="text-xs text-gray-500">PNG, JPG, GIF</p></div></div><div id="image-preview-container" class="mt-4 hidden text-center"><img id="image-preview" src="#" alt="Aperçu" class="max-h-32 mx-auto rounded-lg shadow-sm"/><button id="remove-image-btn" type="button" class="mt-2 text-sm text-red-600 hover:text-red-800">Retirer</button></div></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button>
+                    <button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Soumettre</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <!-- Visionneuse d'image -->
-    <div id="image-viewer-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden"><div class="transform transition-all scale-95 opacity-0"><img id="full-image" src="" alt="Photo du constat en grand" class="rounded-lg shadow-2xl"/><button class="close-modal-btn absolute top-4 right-4 text-white text-3xl font-bold">&times;</button></div></div>
+    <div id="image-viewer-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden"><div class="modal-body-container-open"><img id="full-image" src="" alt="Photo du constat en grand" class="rounded-lg shadow-2xl"/><button class="close-modal-btn absolute top-4 right-4 text-white text-3xl font-bold">&times;</button></div></div>
     
     <!-- Modale Timeline -->
-    <div id="timeline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden"><div class="bg-white rounded-lg shadow-xl p-8 m-4 w-full max-w-lg transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-6"><h3 id="timeline-title" class="text-2xl font-bold">Suivi du constat</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div><div id="timeline-content" class="max-h-[60vh] overflow-y-auto pr-4"></div><form id="timeline-comment-form" class="mt-6 pt-4 border-t border-gray-200 hidden"><label for="timeline-new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label><textarea id="timeline-new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajouter une précision..."></textarea><div class="mt-4 flex justify-end"><button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button></div></form></div></div>
+    <div id="timeline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="modal-body-container">
+            <div class="modal-header">
+                <h3 id="timeline-title" class="text-2xl font-bold">Suivi du constat</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <div class="modal-content-scrollable">
+                <div id="timeline-content"></div>
+            </div>
+            <form id="timeline-comment-form" class="modal-footer flex-col items-stretch hidden">
+                <label for="timeline-new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label>
+                <textarea id="timeline-new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajouter une précision..."></textarea>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
     <!-- Modale Commentaires Manager -->
-    <div id="comment-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden"><div class="bg-white rounded-lg shadow-xl p-8 m-4 w-full max-w-lg transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-6"><h3 id="comment-title" class="text-2xl font-bold">Commentaires</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div><div id="comment-list" class="max-h-[40vh] overflow-y-auto pr-4 space-y-4 mb-6"></div><form id="comment-form"><label for="new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label><textarea id="new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre commentaire..."></textarea><div class="mt-4 flex justify-end"><button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button></div></form></div></div>
+    <div id="comment-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="modal-body-container">
+            <div class="modal-header">
+                <h3 id="comment-title" class="text-2xl font-bold">Commentaires</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <div id="comment-list" class="modal-content-scrollable space-y-4"></div>
+            <form id="comment-form" class="modal-footer flex-col items-stretch">
+                <label for="new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label>
+                <textarea id="new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre commentaire..."></textarea>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Modale de confirmation de suppression -->
-    <div id="delete-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden"><div class="bg-white rounded-lg shadow-xl p-8 m-4 w-full max-w-md transform transition-all scale-95 opacity-0"><div class="text-center"><div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100"><i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i></div><h3 class="mt-4 text-2xl font-bold">Supprimer le constat ?</h3><div id="delete-modal-text" class="mt-2 text-gray-600"><p>Êtes-vous sûr de vouloir supprimer ce constat ?</p><p class="font-semibold mt-2">Cette action est irréversible.</p></div></div><div class="mt-8 flex justify-center space-x-4"><button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button><button id="confirm-delete-btn" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Confirmer</button></div></div></div>
+    <div id="delete-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 m-4 w-full max-w-md transform transition-all scale-95 opacity-0 modal-body-container-open">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i>
+                </div>
+                <h3 class="mt-4 text-2xl font-bold">Supprimer le constat ?</h3>
+                <div id="delete-modal-text" class="mt-2 text-gray-600">
+                    <p>Êtes-vous sûr de vouloir supprimer ce constat ?</p>
+                    <p class="font-semibold mt-2">Cette action est irréversible.</p>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-center space-x-4">
+                <button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button>
+                <button id="confirm-delete-btn" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Confirmer</button>
+            </div>
+        </div>
+    </div>
 
 
     <script>
@@ -141,12 +245,10 @@
         const deleteModal = document.getElementById('delete-modal');
         const modals = [eventModal, imageViewerModal, timelineModal, commentModal, deleteModal];
 
-        // NOUVEAU: Éléments pour le menu mobile
         const sidebar = document.getElementById('sidebar');
         const menuToggleBtn = document.getElementById('menu-toggle-btn');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         
-        // NOUVEAU: Logique du menu mobile
         const toggleSidebar = () => {
             sidebar.classList.toggle('-translate-x-full');
             sidebarOverlay.classList.toggle('hidden');
@@ -293,15 +395,28 @@
         };
 
         // --- Gestion Modales ---
-        const openModal = (modal) => { modal.classList.remove('hidden'); setTimeout(() => modal.querySelector(':scope > div').classList.remove('scale-95', 'opacity-0'), 10); };
-        const closeModal = (modal) => { const content = modal.querySelector(':scope > div'); content.classList.add('scale-95', 'opacity-0'); setTimeout(() => modal.classList.add('hidden'), 200); };
+        const openModal = (modal) => { 
+            modal.classList.remove('hidden'); 
+            setTimeout(() => {
+                const modalBody = modal.querySelector('.modal-body-container, .modal-body-container-open');
+                if (modalBody) modalBody.classList.add('modal-body-container-open');
+                else modal.querySelector(':scope > div').classList.remove('scale-95', 'opacity-0'); // Fallback
+            }, 10); 
+        };
+        const closeModal = (modal) => { 
+            const modalBody = modal.querySelector('.modal-body-container, .modal-body-container-open');
+            if (modalBody) modalBody.classList.remove('modal-body-container-open');
+            else modal.querySelector(':scope > div').classList.add('scale-95', 'opacity-0'); // Fallback
+            
+            setTimeout(() => modal.classList.add('hidden'), 300); 
+        };
+
         document.body.addEventListener('click', (e) => {
             if (e.target.closest('.close-modal-btn')) closeModal(e.target.closest('.fixed'));
             if (e.target.closest('.cancel-btn')) closeModal(e.target.closest('.fixed'));
             if (modals.includes(e.target)) closeModal(e.target);
         });
         
-        // MODIFIÉ: Ajout de la fermeture du menu mobile sur logout
         document.getElementById('logout-btn').addEventListener('click', () => {
             if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
                 toggleSidebar();
@@ -310,7 +425,6 @@
         });
         
         // --- Modale Ajout Constat ---
-        // MODIFIÉ: Ajout de la fermeture du menu mobile
         document.getElementById('add-event-btn').addEventListener('click', () => {
             if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
                 toggleSidebar();
