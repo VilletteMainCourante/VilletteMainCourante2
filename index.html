@@ -15,8 +15,8 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .status-select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
-        #image-viewer-modal, #event-modal, #timeline-modal, #comment-modal { transition: opacity 0.3s ease; }
-        #image-viewer-modal > div, #event-modal > div, #timeline-modal > div, #comment-modal > div { transition: all 0.3s ease; }
+        #image-viewer-modal, #event-modal, #timeline-modal, #comment-modal, #delete-modal { transition: opacity 0.3s ease; }
+        #image-viewer-modal > div, #event-modal > div, #timeline-modal > div, #comment-modal > div, #delete-modal > div { transition: all 0.3s ease; }
         #full-image { max-width: 90vw; max-height: 90vh; }
         .timeline-item:last-child .timeline-line { display: none; }
     </style>
@@ -35,7 +35,6 @@
                         <label for="role-manager" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-manager" name="role" value="manager" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="text-gray-700">Manager</span></label>
                     </div>
                 </div>
-                <!-- Champ de code (dynamique) -->
                 <div id="access-code-wrapper" class="hidden">
                     <label for="access-code" class="sr-only">Code d'accès</label>
                     <input type="password" id="access-code" class="w-full px-4 py-3 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Code d'accès Manager">
@@ -51,10 +50,8 @@
     <!-- Conteneur principal -->
     <div id="app-container" class="hidden"><div class="flex h-screen"><aside class="w-64 bg-white shadow-md flex flex-col"><div class="p-6 border-b flex items-center justify-center"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-6 h-8"><svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><div class="flex-1 p-4 space-y-2"><button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"><i data-lucide="plus-circle"></i><span>Nouveau Constat</span></button></div><div class="p-4 border-t"><div class="flex items-center space-x-3"><div class="p-2 bg-gray-200 rounded-full text-gray-600"><i data-lucide="user"></i></div><div><p id="user-name" class="font-semibold text-sm">Collaborateur</p><p id="user-role" class="text-xs text-gray-500 capitalize">Collaborateur</p></div></div><button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg"><i data-lucide="log-out" class="h-4 w-4"></i><span>Déconnexion</span></button></div></aside><main class="flex-1 p-8 overflow-y-auto no-scrollbar">
         
-        <!-- VUE COLLABORATEUR -->
         <div id="collaborateur-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-6 rounded-lg shadow-sm"><div id="collaborateur-log-list" class="space-y-4"></div></div></div>
         
-        <!-- VUE MANAGER -->
         <div id="manager-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Tableau de bord Manager</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div></div><div class="mt-8 bg-white p-6 rounded-lg shadow-sm"><h3 class="text-xl font-bold mb-4">Tous les constats</h3><div id="manager-log-list" class="space-y-4"></div></div></div>
         
     </main></div></div>
@@ -65,15 +62,14 @@
     <!-- Visionneuse d'image -->
     <div id="image-viewer-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] hidden"><div class="transform transition-all scale-95 opacity-0"><img id="full-image" src="" alt="Photo du constat en grand" class="rounded-lg shadow-2xl"/><button class="close-modal-btn absolute top-4 right-4 text-white text-3xl font-bold">&times;</button></div></div>
     
-    <!-- Modale Timeline (avec formulaire de commentaire) -->
+    <!-- Modale Timeline -->
     <div id="timeline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg transform transition-all scale-95 opacity-0">
             <div class="flex justify-between items-center mb-6"><h3 id="timeline-title" class="text-2xl font-bold">Suivi du constat</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div>
             <div id="timeline-content" class="max-h-[60vh] overflow-y-auto pr-4"></div>
-            
             <form id="timeline-comment-form" class="mt-6 pt-4 border-t border-gray-200 hidden">
                 <label for="timeline-new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label>
-                <textarea id="timeline-new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajouter une précision, poser une question..."></textarea>
+                <textarea id="timeline-new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajouter une précision..."></textarea>
                 <div class="mt-4 flex justify-end">
                     <button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button>
                 </div>
@@ -83,6 +79,26 @@
     
     <!-- Modale Commentaires Manager -->
     <div id="comment-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50"><div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-6"><h3 id="comment-title" class="text-2xl font-bold">Commentaires</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div><div id="comment-list" class="max-h-[40vh] overflow-y-auto pr-4 space-y-4 mb-6"></div><form id="comment-form"><label for="new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label><textarea id="new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre commentaire..."></textarea><div class="mt-4 flex justify-end"><button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button></div></form></div></div>
+
+    <!-- NOUVEAU: Modale de confirmation de suppression -->
+    <div id="delete-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md transform transition-all scale-95 opacity-0">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i>
+                </div>
+                <h3 class="mt-4 text-2xl font-bold">Supprimer le constat ?</h3>
+                <div id="delete-modal-text" class="mt-2 text-gray-600">
+                    <p>Êtes-vous sûr de vouloir supprimer ce constat ?</p>
+                    <p class="font-semibold mt-2">Cette action est irréversible.</p>
+                </div>
+            </div>
+            <div class="mt-8 flex justify-center space-x-4">
+                <button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button>
+                <button id="confirm-delete-btn" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Confirmer</button>
+            </div>
+        </div>
+    </div>
 
 
     <script>
@@ -105,9 +121,10 @@
         const imageViewerModal = document.getElementById('image-viewer-modal');
         const timelineModal = document.getElementById('timeline-modal');
         const commentModal = document.getElementById('comment-modal');
-        const modals = [eventModal, imageViewerModal, timelineModal, commentModal];
+        const deleteModal = document.getElementById('delete-modal'); // NOUVEAU
+        const modals = [eventModal, imageViewerModal, timelineModal, commentModal, deleteModal]; // NOUVEAU
         
-        // --- Logique de Connexion (MODIFIÉE) ---
+        // --- Logique de Connexion ---
         const loginForm = document.getElementById('login-form');
         const accessCodeWrapper = document.getElementById('access-code-wrapper');
         const accessCodeInput = document.getElementById('access-code');
@@ -147,13 +164,11 @@
             }
         });
 
-        // --- Initialisation de l'Application (MODIFIÉE) ---
+        // --- Initialisation de l'Application ---
         const initializeApp = (role) => {
             state.currentUserRole = role;
-            // Noms par défaut pour le collaborateur et le manager
             state.currentUserName = role === 'manager' ? 'Manager' : 'Collaborateur';
             document.getElementById('user-name').textContent = state.currentUserName;
-            // Affiche le rôle avec une majuscule
             document.getElementById('user-role').textContent = role.charAt(0).toUpperCase() + role.slice(1);
             
             fetchAndRenderAllData();
@@ -179,7 +194,7 @@
             renderApp(constats); 
         };
 
-        // --- Fonctions de Rendu (MODIFIÉES) ---
+        // --- Fonctions de Rendu ---
         const getStatusInfo = (status) => {
             switch (status) {
                 case 'Nouveau': return { badge: 'bg-blue-100 text-blue-800', icon: 'file-plus' };
@@ -211,6 +226,7 @@
             lucide.createIcons();
         };
 
+        // MODIFIÉ: Ajout du bouton Supprimer
         const createEventElement = (event, role) => {
             const statusInfo = getStatusInfo(event.status);
             const photoHtml = event.photo_url ? `<div class="mt-4"><img src="${event.photo_url}" alt="Photo" class="max-h-32 rounded-lg cursor-pointer image-thumbnail shadow-sm" data-src="${event.photo_url}"></div>` : '';
@@ -221,9 +237,20 @@
                 const statusOptions = ['Nouveau', 'En cours', 'Résolu'].map(s => `<option value="${s}" ${event.status === s ? 'selected' : ''}>${s}</option>`).join('');
                 return `
                     <div class="p-4 border rounded-lg bg-white shadow-sm">
-                        <div class="flex justify-between items-start"><h4 class="font-bold pr-4">${event.title}</h4><select data-event-id="${event.id}" class="status-select text-xs font-medium rounded-full py-1 border-0 focus:ring-2 focus:ring-red-300 ${statusInfo.badge}">${statusOptions}</select></div>
-                        <p class="text-sm text-gray-600 mt-2">${event.description}</p>${photoHtml}
-                        <div class="mt-3 flex items-center justify-between text-xs text-gray-500"><span>Par: <strong>${event.user}</strong></span><button data-event-id="${event.id}" class="comment-btn text-xs text-red-600 hover:underline">Commentaires (${commentCount})</button><span>${dateStr}</span></div>
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold pr-4">${event.title}</h4>
+                            <select data-event-id="${event.id}" class="status-select text-xs font-medium rounded-full py-1 border-0 focus:ring-2 focus:ring-red-300 ${statusInfo.badge}">${statusOptions}</select>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">${event.description}</p>
+                        ${photoHtml}
+                        <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+                            <span>Par: <strong>${event.user}</strong></span>
+                            <div class="flex items-center space-x-3">
+                                <button data-event-id="${event.id}" class="comment-btn text-xs text-red-600 hover:underline">Commentaires (${commentCount})</button>
+                                <button data-event-id="${event.id}" class="delete-btn text-xs text-red-500 hover:underline flex items-center"><i data-lucide="trash-2" class="h-3 w-3 mr-1"></i>Supprimer</button>
+                            </div>
+                            <span>${dateStr}</span>
+                        </div>
                     </div>`;
             } else { // Collaborateur
                 return `
@@ -285,6 +312,22 @@
                 submitButton.disabled = false; submitButton.textContent = 'Soumettre';
             }
         });
+        
+        // --- Helper: Extraire le chemin de l'URL Supabase Storage ---
+        const getStoragePathFromUrl = (url) => {
+            if (!url) return null;
+            try {
+                const urlObj = new URL(url);
+                // Le chemin est /storage/v1/object/public/constats/public/image.png
+                // Nous voulons extraire ce qui suit "constats/"
+                const parts = urlObj.pathname.split('/constats/');
+                return parts[1] || null;
+            } catch (e) {
+                console.error('URL de stockage invalide:', e);
+                return null;
+            }
+        }
+        
         // --- Gestion Upload Photo ---
         const photoInput = document.getElementById('event-photo');
         const uploadZone = document.getElementById('image-upload-zone');
@@ -297,8 +340,9 @@
         document.getElementById('remove-image-btn').addEventListener('click', () => { photoInput.value = ''; document.getElementById('image-preview').src = '#'; document.getElementById('image-preview-container').classList.add('hidden'); });
         document.body.addEventListener('click', e => { if (e.target.classList.contains('image-thumbnail')) { document.getElementById('full-image').src = e.target.dataset.src; openModal(imageViewerModal); } });
 
-        // --- Actions Manager ---
+        // --- Actions Manager (MODIFIÉ) ---
         document.getElementById('manager-log-list').addEventListener('change', async (e) => {
+            // ... (logique de changement de statut - inchangée)
             if (e.target.classList.contains('status-select')) {
                 const eventId = parseInt(e.target.dataset.eventId);
                 const newStatus = e.target.value;
@@ -313,10 +357,30 @@
                 }
             }
         });
+        
+        // MODIFIÉ: Sépare les listeners de clic
         document.getElementById('manager-log-list').addEventListener('click', e => {
-            const btn = e.target.closest('.comment-btn');
-            if (btn) { const event = state.allConstats.find(ev => ev.id === parseInt(btn.dataset.eventId)); if (event) renderCommentModal(event); }
+            const commentBtn = e.target.closest('.comment-btn');
+            if (commentBtn) { 
+                const event = state.allConstats.find(ev => ev.id === parseInt(commentBtn.dataset.eventId)); 
+                if (event) renderCommentModal(event);
+                return;
+            }
+            
+            // NOUVEAU: Gérer le clic sur "Supprimer"
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (deleteBtn) {
+                const eventId = parseInt(deleteBtn.dataset.eventId);
+                const event = state.allConstats.find(ev => ev.id === eventId);
+                if (event) {
+                    const deleteModalText = document.getElementById('delete-modal-text');
+                    deleteModalText.innerHTML = `Êtes-vous sûr de vouloir supprimer le constat : <br><strong>"${event.title}"</strong> ? <br><br>Cette action est irréversible.`;
+                    document.getElementById('confirm-delete-btn').dataset.eventId = eventId;
+                    openModal(deleteModal);
+                }
+            }
         });
+        
         const renderCommentModal = (event) => {
             document.getElementById('comment-title').textContent = `Commentaires: ${event.title}`;
             const list = document.getElementById('comment-list');
@@ -325,6 +389,7 @@
             const form = document.getElementById('comment-form');
             form.dataset.eventId = event.id; form.reset(); openModal(commentModal);
         };
+        
         document.getElementById('comment-form').addEventListener('submit', async e => {
             e.preventDefault();
             const eventId = parseInt(e.currentTarget.dataset.eventId);
@@ -342,7 +407,58 @@
             }
         });
 
-        // --- Action Collaborateur : Voir Timeline (MODIFIÉ) ---
+        // NOUVEAU: Logique de suppression
+        document.getElementById('confirm-delete-btn').addEventListener('click', async (e) => {
+            const submitButton = e.currentTarget;
+            const eventId = parseInt(submitButton.dataset.eventId);
+            if (!eventId) return;
+
+            const event = state.allConstats.find(ev => ev.id === eventId);
+            if (!event) return;
+
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Suppression...';
+
+            const photoPath = getStoragePathFromUrl(event.photo_url);
+
+            try {
+                // 1. Supprimer les actions de suivi (dépendances)
+                const { error: actionsError } = await supabaseClient
+                    .from('actions_suivi')
+                    .delete()
+                    .eq('constat_id', eventId);
+                if (actionsError) throw actionsError;
+
+                // 2. Supprimer la photo du stockage (si elle existe)
+                if (photoPath) {
+                    const { error: storageError } = await supabaseClient
+                        .storage
+                        .from('constats')
+                        .remove([photoPath]);
+                    if (storageError) console.warn('Erreur suppression photo:', storageError.message);
+                }
+
+                // 3. Supprimer le constat principal
+                const { error: constatError } = await supabaseClient
+                    .from('constats')
+                    .delete()
+                    .eq('id', eventId);
+                if (constatError) throw constatError;
+
+                closeModal(deleteModal); // Le temps réel fera le reste
+
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                alert('Erreur: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+
+
+        // --- Action Collaborateur : Voir Timeline ---
         document.getElementById('collaborateur-log-list').addEventListener('click', (e) => {
             const btn = e.target.closest('.show-timeline-btn');
             if (btn) {
@@ -369,7 +485,6 @@
                 return `<div class="flex timeline-item"><div class="flex flex-col items-center mr-4"><div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"><i data-lucide="${icon}" class="h-4 w-4 text-gray-600"></i></div><div class="w-px h-full bg-gray-300 timeline-line"></div></div><div class="pb-8"><p class="mb-1 text-sm">${text}</p><p class="text-xs text-gray-500">${date} par <strong>${item.author}</strong></p></div></div>`;
             }).join('') : `<p class="text-sm text-gray-500 text-center">Aucune action pour le moment.</p>`;
             
-            // Affiche le formulaire de commentaire SEULEMENT si on est collaborateur
             const commentForm = document.getElementById('timeline-comment-form');
             if (state.currentUserRole === 'collaborateur') {
                 commentForm.classList.remove('hidden');
