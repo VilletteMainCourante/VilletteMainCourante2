@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- TITRE MODIFIÉ -->
-    <title>Main courante DTS - La Villette</title>
+    <title>Application de Suivi - La Villette</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -24,16 +23,15 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <!-- Écran de connexion (Accès salarié simplifié) -->
+    <!-- Écran de connexion (Accès collaborateur simplifié) -->
     <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm">
-            <!-- TITRE MODIFIÉ -->
-            <div class="text-center mb-6 flex flex-col items-center"><div class="flex items-center justify-center h-12 mb-4"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-7 h-10"><svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><h2 class="mt-4 text-2xl font-bold text-gray-900">Main courante DTS</h2><p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle.</p></div>
+            <div class="text-center mb-6 flex flex-col items-center"><div class="flex items-center justify-center h-12 mb-4"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-7 h-10"><svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><h2 class="mt-4 text-2xl font-bold text-gray-900">Application de Suivi</h2><p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle.</p></div>
             <form id="login-form">
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Je suis un :</label>
                     <div class="flex items-center justify-center space-x-4">
-                        <label for="role-salarié" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-salarié" name="role" value="salarié" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="text-gray-700">Salarié</span></label>
+                        <label for="role-collaborateur" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-collaborateur" name="role" value="collaborateur" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="text-gray-700">Collaborateur</span></label>
                         <label for="role-manager" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-manager" name="role" value="manager" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="text-gray-700">Manager</span></label>
                     </div>
                 </div>
@@ -51,10 +49,10 @@
     </div>
 
     <!-- Conteneur principal -->
-    <div id="app-container" class="hidden"><div class="flex h-screen"><aside class="w-64 bg-white shadow-md flex flex-col"><div class="p-6 border-b flex items-center justify-center"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-6 h-8"><svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><div class="flex-1 p-4 space-y-2"><button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"><i data-lucide="plus-circle"></i><span>Nouveau Constat</span></button></div><div class="p-4 border-t"><div class="flex items-center space-x-3"><div class="p-2 bg-gray-200 rounded-full text-gray-600"><i data-lucide="user"></i></div><div><p id="user-name" class="font-semibold text-sm">Jean Dupont</p><p id="user-role" class="text-xs text-gray-500 capitalize">Salarié</p></div></div><button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg"><i data-lucide="log-out" class="h-4 w-4"></i><span>Déconnexion</span></button></div></aside><main class="flex-1 p-8 overflow-y-auto no-scrollbar">
+    <div id="app-container" class="hidden"><div class="flex h-screen"><aside class="w-64 bg-white shadow-md flex flex-col"><div class="p-6 border-b flex items-center justify-center"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-6 h-8"><svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><div class="flex-1 p-4 space-y-2"><button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"><i data-lucide="plus-circle"></i><span>Nouveau Constat</span></button></div><div class="p-4 border-t"><div class="flex items-center space-x-3"><div class="p-2 bg-gray-200 rounded-full text-gray-600"><i data-lucide="user"></i></div><div><p id="user-name" class="font-semibold text-sm">Collaborateur</p><p id="user-role" class="text-xs text-gray-500 capitalize">Collaborateur</p></div></div><button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg"><i data-lucide="log-out" class="h-4 w-4"></i><span>Déconnexion</span></button></div></aside><main class="flex-1 p-8 overflow-y-auto no-scrollbar">
         
-        <!-- VUE SALARIÉ -->
-        <div id="salarié-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-6 rounded-lg shadow-sm"><div id="salarié-log-list" class="space-y-4"></div></div></div>
+        <!-- VUE COLLABORATEUR -->
+        <div id="collaborateur-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-6 rounded-lg shadow-sm"><div id="collaborateur-log-list" class="space-y-4"></div></div></div>
         
         <!-- VUE MANAGER -->
         <div id="manager-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Tableau de bord Manager</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div></div><div class="mt-8 bg-white p-6 rounded-lg shadow-sm"><h3 class="text-xl font-bold mb-4">Tous les constats</h3><div id="manager-log-list" class="space-y-4"></div></div></div>
@@ -109,7 +107,7 @@
         const commentModal = document.getElementById('comment-modal');
         const modals = [eventModal, imageViewerModal, timelineModal, commentModal];
         
-        // --- Logique de Connexion (Accès salarié simplifié) ---
+        // --- Logique de Connexion (MODIFIÉE) ---
         const loginForm = document.getElementById('login-form');
         const accessCodeWrapper = document.getElementById('access-code-wrapper');
         const accessCodeInput = document.getElementById('access-code');
@@ -120,7 +118,7 @@
                 if (e.target.value === 'manager') {
                     accessCodeWrapper.classList.remove('hidden');
                     accessCodeInput.required = true;
-                } else {
+                } else { // collaborateur
                     accessCodeWrapper.classList.add('hidden');
                     accessCodeInput.required = false;
                 }
@@ -133,7 +131,7 @@
             const enteredCode = accessCodeInput.value;
             let isLoginSuccessful = false;
             
-            if (selectedRole === 'salarié') {
+            if (selectedRole === 'collaborateur') {
                 isLoginSuccessful = true; // Accès direct
             } else if (selectedRole === 'manager' && enteredCode === correctManagerCode) {
                 isLoginSuccessful = true;
@@ -149,12 +147,14 @@
             }
         });
 
-        // --- Initialisation de l'Application ---
+        // --- Initialisation de l'Application (MODIFIÉE) ---
         const initializeApp = (role) => {
             state.currentUserRole = role;
-            state.currentUserName = role === 'manager' ? 'Alice Manager' : 'Jean Dupont'; // Noms par défaut
+            // Noms par défaut pour le collaborateur et le manager
+            state.currentUserName = role === 'manager' ? 'Manager' : 'Collaborateur';
             document.getElementById('user-name').textContent = state.currentUserName;
-            document.getElementById('user-role').textContent = role.charAt(0).toUpperCase() + role.slice(1); // Met une majuscule
+            // Affiche le rôle avec une majuscule
+            document.getElementById('user-role').textContent = role.charAt(0).toUpperCase() + role.slice(1);
             
             fetchAndRenderAllData();
             
@@ -179,7 +179,7 @@
             renderApp(constats); 
         };
 
-        // --- Fonctions de Rendu ---
+        // --- Fonctions de Rendu (MODIFIÉES) ---
         const getStatusInfo = (status) => {
             switch (status) {
                 case 'Nouveau': return { badge: 'bg-blue-100 text-blue-800', icon: 'file-plus' };
@@ -190,14 +190,14 @@
         };
 
         const renderApp = (constats) => {
-            document.getElementById('salarié-view').classList.toggle('hidden', state.currentUserRole !== 'salarié');
+            document.getElementById('collaborateur-view').classList.toggle('hidden', state.currentUserRole !== 'collaborateur');
             document.getElementById('manager-view').classList.toggle('hidden', state.currentUserRole !== 'manager');
             
-            if (state.currentUserRole === 'salarié') {
-                const logList = document.getElementById('salarié-log-list');
+            if (state.currentUserRole === 'collaborateur') {
+                const logList = document.getElementById('collaborateur-log-list');
                 const userEvents = constats.filter(e => e.user === state.currentUserName);
                 logList.innerHTML = userEvents.length > 0 
-                    ? userEvents.map(event => createEventElement(event, 'salarié')).join('') 
+                    ? userEvents.map(event => createEventElement(event, 'collaborateur')).join('') 
                     : `<p class="text-center text-gray-500 py-4">Vous n'avez soumis aucun constat.</p>`;
             } else { // Manager
                 document.getElementById('stats-new').textContent = constats.filter(e => e.status === 'Nouveau').length;
@@ -225,7 +225,7 @@
                         <p class="text-sm text-gray-600 mt-2">${event.description}</p>${photoHtml}
                         <div class="mt-3 flex items-center justify-between text-xs text-gray-500"><span>Par: <strong>${event.user}</strong></span><button data-event-id="${event.id}" class="comment-btn text-xs text-red-600 hover:underline">Commentaires (${commentCount})</button><span>${dateStr}</span></div>
                     </div>`;
-            } else { // Salarié
+            } else { // Collaborateur
                 return `
                     <div class="p-4 border rounded-lg bg-white shadow-sm">
                         <div class="flex justify-between items-start"><h4 class="font-bold pr-4">${event.title}</h4><span class="px-2 py-1 rounded-full text-xs font-medium ${statusInfo.badge}">${event.status}</span></div>
@@ -342,8 +342,8 @@
             }
         });
 
-        // --- Action Salarié : Voir Timeline ---
-        document.getElementById('salarié-log-list').addEventListener('click', (e) => {
+        // --- Action Collaborateur : Voir Timeline (MODIFIÉ) ---
+        document.getElementById('collaborateur-log-list').addEventListener('click', (e) => {
             const btn = e.target.closest('.show-timeline-btn');
             if (btn) {
                 const event = state.allConstats.find(ev => ev.id === parseInt(btn.dataset.eventId));
@@ -369,9 +369,9 @@
                 return `<div class="flex timeline-item"><div class="flex flex-col items-center mr-4"><div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"><i data-lucide="${icon}" class="h-4 w-4 text-gray-600"></i></div><div class="w-px h-full bg-gray-300 timeline-line"></div></div><div class="pb-8"><p class="mb-1 text-sm">${text}</p><p class="text-xs text-gray-500">${date} par <strong>${item.author}</strong></p></div></div>`;
             }).join('') : `<p class="text-sm text-gray-500 text-center">Aucune action pour le moment.</p>`;
             
-            // Affiche le formulaire de commentaire SEULEMENT si on est salarié
+            // Affiche le formulaire de commentaire SEULEMENT si on est collaborateur
             const commentForm = document.getElementById('timeline-comment-form');
-            if (state.currentUserRole === 'salarié') {
+            if (state.currentUserRole === 'collaborateur') {
                 commentForm.classList.remove('hidden');
                 commentForm.dataset.eventId = event.id;
                 commentForm.reset();
@@ -383,7 +383,7 @@
             openModal(timelineModal);
         };
         
-        // --- Action Salarié : Ajout Commentaire Timeline ---
+        // --- Action Collaborateur : Ajout Commentaire Timeline ---
         document.getElementById('timeline-comment-form').addEventListener('submit', async e => {
             e.preventDefault();
             const eventId = parseInt(e.currentTarget.dataset.eventId);
