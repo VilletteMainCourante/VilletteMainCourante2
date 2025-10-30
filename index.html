@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application de Suivi - La Villette</title>
+    <!-- TITRE MODIFIÉ -->
+    <title>Main courante DTS - La Villette</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -23,21 +24,66 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <!-- Écran de connexion (inchangé) -->
+    <!-- Écran de connexion (Accès salarié simplifié) -->
     <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-sm">
-            <div class="text-center mb-6 flex flex-col items-center"><div class="flex items-center justify-center h-12 mb-4"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-7 h-10"><svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><h2 class="mt-4 text-2xl font-bold text-gray-900">Application de Suivi</h2><p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle et entrer le code.</p></div>
-            <form id="login-form"><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Je suis un :</label><div class="flex items-center justify-center space-x-4"><label for="role-salarié" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-salarié" name="role" value="salarié" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="text-gray-700">Salarié</span></label><label for="role-manager" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-manager" name="role" value="manager" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="text-gray-700">Manager</span></label></div></div><div><label for="access-code" class="sr-only">Code d'accès</label><input type="password" id="access-code" required class="w-full px-4 py-3 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Code d'accès"></div><p id="error-message" class="text-red-500 text-sm mt-2 text-center h-5"></p><div class="mt-4"><button type="submit" class="w-full px-6 py-3 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Connexion</button></div></form>
+            <!-- TITRE MODIFIÉ -->
+            <div class="text-center mb-6 flex flex-col items-center"><div class="flex items-center justify-center h-12 mb-4"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-4xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-7 h-10"><svg class="absolute w-full h-full" style="top: -6px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 4px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-4xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><h2 class="mt-4 text-2xl font-bold text-gray-900">Main courante DTS</h2><p class="text-gray-600 mt-1">Veuillez sélectionner votre rôle.</p></div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Je suis un :</label>
+                    <div class="flex items-center justify-center space-x-4">
+                        <label for="role-salarié" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-salarié" name="role" value="salarié" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="text-gray-700">Salarié</span></label>
+                        <label for="role-manager" class="flex items-center space-x-2 cursor-pointer"><input type="radio" id="role-manager" name="role" value="manager" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="text-gray-700">Manager</span></label>
+                    </div>
+                </div>
+                <!-- Champ de code (dynamique) -->
+                <div id="access-code-wrapper" class="hidden">
+                    <label for="access-code" class="sr-only">Code d'accès</label>
+                    <input type="password" id="access-code" class="w-full px-4 py-3 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Code d'accès Manager">
+                </div>
+                <p id="error-message" class="text-red-500 text-sm mt-2 text-center h-5"></p>
+                <div class="mt-4">
+                    <button type="submit" class="w-full px-6 py-3 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Connexion</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Conteneur principal de l'application (inchangé) -->
-    <div id="app-container" class="hidden"><div class="flex h-screen"><aside class="w-64 bg-white shadow-md flex flex-col"><div class="p-6 border-b flex items-center justify-center"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-6 h-8"><svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><div class="flex-1 p-4 space-y-2"><button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"><i data-lucide="plus-circle"></i><span>Nouveau Constat</span></button></div><div class="p-4 border-t"><div class="flex items-center space-x-3"><div class="p-2 bg-gray-200 rounded-full text-gray-600"><i data-lucide="user"></i></div><div><p id="user-name" class="font-semibold text-sm">Jean Dupont</p><p id="user-role" class="text-xs text-gray-500 capitalize">Salarié</p></div></div><button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg"><i data-lucide="log-out" class="h-4 w-4"></i><span>Déconnexion</span></button></div></aside><main class="flex-1 p-8 overflow-y-auto no-scrollbar"><div id="salarié-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-6 rounded-lg shadow-sm"><div id="salarié-log-list" class="space-y-4"></div></div></div><div id="manager-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Tableau de bord Manager</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div></div><div class="mt-8 bg-white p-6 rounded-lg shadow-sm"><h3 class="text-xl font-bold mb-4">Tous les constats</h3><div id="manager-log-list" class="space-y-4"></div></div></div></main></div></div>
+    <!-- Conteneur principal -->
+    <div id="app-container" class="hidden"><div class="flex h-screen"><aside class="w-64 bg-white shadow-md flex flex-col"><div class="p-6 border-b flex items-center justify-center"><div class="flex items-end space-x-0 text-red-600" aria-label="La Villette Logo"><span class="text-3xl font-black tracking-tighter" style="margin-right: -2px;">la</span><div class="relative w-6 h-8"><svg class="absolute w-full h-full" style="top: -5px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: -1px;" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="absolute w-full h-full" style="top: 3px" viewBox="0 0 20 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L10 28L18 2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="text-3xl font-black tracking-tighter" style="margin-left: -2px;">illette</span></div></div><div class="flex-1 p-4 space-y-2"><button id="add-event-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center space-x-2"><i data-lucide="plus-circle"></i><span>Nouveau Constat</span></button></div><div class="p-4 border-t"><div class="flex items-center space-x-3"><div class="p-2 bg-gray-200 rounded-full text-gray-600"><i data-lucide="user"></i></div><div><p id="user-name" class="font-semibold text-sm">Jean Dupont</p><p id="user-role" class="text-xs text-gray-500 capitalize">Salarié</p></div></div><button id="logout-btn" class="w-full mt-4 text-sm flex items-center justify-center space-x-2 text-gray-600 hover:text-red-600 hover:bg-red-50 py-2 rounded-lg"><i data-lucide="log-out" class="h-4 w-4"></i><span>Déconnexion</span></button></div></aside><main class="flex-1 p-8 overflow-y-auto no-scrollbar">
+        
+        <!-- VUE SALARIÉ -->
+        <div id="salarié-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Mes constats</h2><div class="bg-white p-6 rounded-lg shadow-sm"><div id="salarié-log-list" class="space-y-4"></div></div></div>
+        
+        <!-- VUE MANAGER -->
+        <div id="manager-view" class="page hidden"><h2 class="text-3xl font-bold mb-6">Tableau de bord Manager</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Nouveaux constats</p><p id="stats-new" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">En cours de traitement</p><p id="stats-in-progress" class="text-2xl font-bold">0</p></div><div class="bg-white p-6 rounded-lg shadow-sm"><p class="text-sm text-gray-500">Constats résolus</p><p id="stats-resolved" class="text-2xl font-bold">0</p></div></div><div class="mt-8 bg-white p-6 rounded-lg shadow-sm"><h3 class="text-xl font-bold mb-4">Tous les constats</h3><div id="manager-log-list" class="space-y-4"></div></div></div>
+        
+    </main></div></div>
 
-    <!-- Modales (inchangées) -->
+    <!-- Modale Ajout Constat -->
     <div id="event-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50"><div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-bold">Signaler un nouveau constat</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div><form id="event-form"><div><label for="event-title" class="block text-sm font-medium text-gray-700 mb-1">Titre</label><input type="text" id="event-title" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Fuite d'eau couloir B"></div><div class="mt-6"><label for="event-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label><textarea id="event-description" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajoutez les détails..."></textarea></div><div class="mt-6"><label class="block text-sm font-medium text-gray-700 mb-1">Photo (optionnel)</label><div id="image-upload-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div class="space-y-1 text-center"><i data-lucide="image" class="mx-auto h-12 w-12 text-gray-400"></i><div class="flex text-sm text-gray-600"><label for="event-photo" class="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-red-500"><span>Téléchargez un fichier</span><input id="event-photo" type="file" class="sr-only" accept="image/*"></label><p class="pl-1">ou glissez-déposez</p></div><p class="text-xs text-gray-500">PNG, JPG, GIF</p></div></div><div id="image-preview-container" class="mt-4 hidden text-center"><img id="image-preview" src="#" alt="Aperçu" class="max-h-32 mx-auto rounded-lg shadow-sm"/><button id="remove-image-btn" type="button" class="mt-2 text-sm text-red-600 hover:text-red-800">Retirer</button></div></div><div class="mt-8 flex justify-end space-x-4"><button type="button" class="cancel-btn px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button><button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Soumettre</button></div></form></div></div>
+    
+    <!-- Visionneuse d'image -->
     <div id="image-viewer-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] hidden"><div class="transform transition-all scale-95 opacity-0"><img id="full-image" src="" alt="Photo du constat en grand" class="rounded-lg shadow-2xl"/><button class="close-modal-btn absolute top-4 right-4 text-white text-3xl font-bold">&times;</button></div></div>
-    <div id="timeline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50"><div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-6"><h3 id="timeline-title" class="text-2xl font-bold">Suivi du constat</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div><div id="timeline-content" class="max-h-[60vh] overflow-y-auto pr-4"></div></div></div>
+    
+    <!-- Modale Timeline (avec formulaire de commentaire) -->
+    <div id="timeline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg transform transition-all scale-95 opacity-0">
+            <div class="flex justify-between items-center mb-6"><h3 id="timeline-title" class="text-2xl font-bold">Suivi du constat</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div>
+            <div id="timeline-content" class="max-h-[60vh] overflow-y-auto pr-4"></div>
+            
+            <form id="timeline-comment-form" class="mt-6 pt-4 border-t border-gray-200 hidden">
+                <label for="timeline-new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label>
+                <textarea id="timeline-new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajouter une précision, poser une question..."></textarea>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modale Commentaires Manager -->
     <div id="comment-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50"><div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg transform transition-all scale-95 opacity-0"><div class="flex justify-between items-center mb-6"><h3 id="comment-title" class="text-2xl font-bold">Commentaires</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i data-lucide="x" class="h-6 w-6"></i></button></div><div id="comment-list" class="max-h-[40vh] overflow-y-auto pr-4 space-y-4 mb-6"></div><form id="comment-form"><label for="new-comment" class="block text-sm font-medium text-gray-700 mb-1">Ajouter un commentaire</label><textarea id="new-comment" rows="3" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre commentaire..."></textarea><div class="mt-4 flex justify-end"><button type="submit" class="px-6 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 font-semibold">Ajouter</button></div></form></div></div>
 
 
@@ -48,17 +94,10 @@
         // --- Initialisation de Supabase ---
         const SUPABASE_URL = 'https://pixjlysnfnqbtwhovuwb.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpeGpseXNuZm5xYnR3aG92dXdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MzkzNTQsImV4cCI6MjA3NzMxNTM1NH0.k4OyT4A-cJNU-QWVQEWD3tMihRYBo7s1GEc5fF5GvA8';
-        // FIX: Renommage de 'supabase' en 'supabaseClient' pour éviter le conflit de nom
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        // --- FIN NOUVEAU ---
 
-        // --- État Global (simplifié) ---
-        const state = { 
-            currentUserRole: null, 
-            currentUserName: null,
-            allConstats: [] // Cache local pour les données
-        };
-        const correctSalariéCode = 'Villette2025';
+        // --- État Global ---
+        const state = { currentUserRole: null, currentUserName: null, allConstats: [] };
         const correctManagerCode = 'DTNDMM2025';
         
         // --- Éléments DOM ---
@@ -70,66 +109,77 @@
         const commentModal = document.getElementById('comment-modal');
         const modals = [eventModal, imageViewerModal, timelineModal, commentModal];
         
-        // --- Logique de Connexion (inchangée) ---
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+        // --- Logique de Connexion (Accès salarié simplifié) ---
+        const loginForm = document.getElementById('login-form');
+        const accessCodeWrapper = document.getElementById('access-code-wrapper');
+        const accessCodeInput = document.getElementById('access-code');
+        const roleRadios = document.querySelectorAll('input[name="role"]');
+        
+        roleRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'manager') {
+                    accessCodeWrapper.classList.remove('hidden');
+                    accessCodeInput.required = true;
+                } else {
+                    accessCodeWrapper.classList.add('hidden');
+                    accessCodeInput.required = false;
+                }
+            });
+        });
+
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const selectedRole = document.querySelector('input[name="role"]:checked').value;
-            const enteredCode = document.getElementById('access-code').value;
-            const isSalarié = selectedRole === 'salarié' && enteredCode === correctSalariéCode;
-            const isManager = selectedRole === 'manager' && enteredCode === correctManagerCode;
+            const enteredCode = accessCodeInput.value;
+            let isLoginSuccessful = false;
             
-            if (isSalarié || isManager) {
+            if (selectedRole === 'salarié') {
+                isLoginSuccessful = true; // Accès direct
+            } else if (selectedRole === 'manager' && enteredCode === correctManagerCode) {
+                isLoginSuccessful = true;
+            }
+
+            if (isLoginSuccessful) {
                 loginModal.classList.add('hidden');
                 appContainer.classList.remove('hidden');
                 initializeApp(selectedRole);
             } else {
                 document.getElementById('error-message').textContent = 'Code d\'accès incorrect.';
-                document.getElementById('access-code').value = '';
+                accessCodeInput.value = '';
             }
         });
 
         // --- Initialisation de l'Application ---
         const initializeApp = (role) => {
             state.currentUserRole = role;
-            state.currentUserName = role === 'manager' ? 'Alice Manager' : 'Jean Dupont';
+            state.currentUserName = role === 'manager' ? 'Alice Manager' : 'Jean Dupont'; // Noms par défaut
             document.getElementById('user-name').textContent = state.currentUserName;
-            document.getElementById('user-role').textContent = state.currentUserRole;
+            document.getElementById('user-role').textContent = role.charAt(0).toUpperCase() + role.slice(1); // Met une majuscule
             
-            // --- Récupération des données et écoute en temps réel ---
             fetchAndRenderAllData();
             
-            // Écoute des changements sur TOUTES les tables (simple pour ce proto)
-            // FIX: Utilisation de supabaseClient
             const channel = supabaseClient.channel('public-changes')
                 .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
                     console.log('Changement détecté!', payload);
-                    // On pourrait optimiser cela, mais re-fetcher est le plus simple
                     fetchAndRenderAllData(); 
                 })
                 .subscribe();
         };
-        // --- NOUVEAU : Récupération des données ---
+
+        // --- Récupération des données ---
         const fetchAndRenderAllData = async () => {
-            // Récupère les constats ET toutes leurs actions_suivi associées
-            // FIX: Utilisation de supabaseClient
             let { data: constats, error } = await supabaseClient
                 .from('constats')
-                .select(`
-                    *,
-                    actions_suivi (*)
-                `)
-                .order('created_at', { ascending: false }); // Trie par date de création
+                .select(`*, actions_suivi (*)`)
+                .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error('Erreur de récupération des données:', error);
-                return;
-            }
+            if (error) { console.error('Erreur de récupération:', error); return; }
             
-            state.allConstats = constats; // Met à jour le cache local
-            renderApp(constats); // Lance le rendu
+            state.allConstats = constats; 
+            renderApp(constats); 
         };
 
-        // --- Fonctions de Rendu (Modifiées) ---
+        // --- Fonctions de Rendu ---
         const getStatusInfo = (status) => {
             switch (status) {
                 case 'Nouveau': return { badge: 'bg-blue-100 text-blue-800', icon: 'file-plus' };
@@ -139,7 +189,6 @@
             }
         };
 
-        // 'constats' est maintenant passé en argument
         const renderApp = (constats) => {
             document.getElementById('salarié-view').classList.toggle('hidden', state.currentUserRole !== 'salarié');
             document.getElementById('manager-view').classList.toggle('hidden', state.currentUserRole !== 'manager');
@@ -162,10 +211,9 @@
             lucide.createIcons();
         };
 
-        // 'event' vient maintenant de la BDD
         const createEventElement = (event, role) => {
             const statusInfo = getStatusInfo(event.status);
-            const photoHtml = event.photo_url ? `<div class="mt-4"><img src="${event.photo_url}" alt="Photo du constat" class="max-h-32 rounded-lg cursor-pointer image-thumbnail shadow-sm" data-src="${event.photo_url}"></div>` : '';
+            const photoHtml = event.photo_url ? `<div class="mt-4"><img src="${event.photo_url}" alt="Photo" class="max-h-32 rounded-lg cursor-pointer image-thumbnail shadow-sm" data-src="${event.photo_url}"></div>` : '';
             const dateStr = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(event.created_at));
             const commentCount = event.actions_suivi.filter(a => a.type === 'comment').length;
 
@@ -187,7 +235,7 @@
             }
         };
 
-        // --- Gestion des Modales (inchangée) ---
+        // --- Gestion Modales ---
         const openModal = (modal) => { modal.classList.remove('hidden'); setTimeout(() => modal.querySelector(':scope > div').classList.remove('scale-95', 'opacity-0'), 10); };
         const closeModal = (modal) => { const content = modal.querySelector(':scope > div'); content.classList.add('scale-95', 'opacity-0'); setTimeout(() => modal.classList.add('hidden'), 200); };
         document.body.addEventListener('click', (e) => {
@@ -197,7 +245,7 @@
         });
         document.getElementById('logout-btn').addEventListener('click', () => window.location.reload());
         
-        // --- Modale Ajout Constat (Très Modifiée) ---
+        // --- Modale Ajout Constat ---
         document.getElementById('add-event-btn').addEventListener('click', () => {
             document.getElementById('event-form').reset();
             document.getElementById('image-preview-container').classList.add('hidden');
@@ -205,81 +253,39 @@
             document.getElementById('event-photo').value = '';
             openModal(eventModal);
         });
-
         document.getElementById('event-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = e.target.querySelector('button[type="submit"]');
             submitButton.disabled = true;
             submitButton.textContent = 'Envoi...';
-
             const photoInput = document.getElementById('event-photo');
             const file = photoInput.files[0];
             let photo_url = null;
-
             try {
-                // 1. Gérer l'upload de la photo
                 if (file) {
                     const filePath = `public/${Date.now()}-${file.name}`;
-                    // FIX: Utilisation de supabaseClient
-                    const { data: uploadData, error: uploadError } = await supabaseClient
-                        .storage
-                        .from('constats') // Nom du bucket
-                        .upload(filePath, file);
-
+                    const { data: uploadData, error: uploadError } = await supabaseClient.storage.from('constats').upload(filePath, file);
                     if (uploadError) throw uploadError;
-
-                    // Récupérer l'URL publique
-                    // FIX: Utilisation de supabaseClient
-                    const { data: urlData } = supabaseClient
-                        .storage
-                        .from('constats')
-                        .getPublicUrl(filePath);
-                    
+                    const { data: urlData } = supabaseClient.storage.from('constats').getPublicUrl(filePath);
                     photo_url = urlData.publicUrl;
                 }
-
-                // 2. Insérer le constat
-                // FIX: Utilisation de supabaseClient
                 const { data: newConstat, error: constatError } = await supabaseClient
                     .from('constats')
-                    .insert({
-                        title: document.getElementById('event-title').value,
-                        description: document.getElementById('event-description').value,
-                        user: state.currentUserName,
-                        status: 'Nouveau',
-                        photo_url: photo_url
-                    })
-                    .select() // Pour récupérer la ligne insérée
-                    .single(); // On s'attend à une seule ligne
-
+                    .insert({ title: document.getElementById('event-title').value, description: document.getElementById('event-description').value, user: state.currentUserName, status: 'Nouveau', photo_url: photo_url })
+                    .select().single();
                 if (constatError) throw constatError;
-
-                // 3. Insérer la première action de suivi
-                // FIX: Utilisation de supabaseClient
                 const { error: actionError } = await supabaseClient
                     .from('actions_suivi')
-                    .insert({
-                        constat_id: newConstat.id,
-                        author: state.currentUserName,
-                        type: 'status_change',
-                        content: 'Nouveau'
-                    });
-
+                    .insert({ constat_id: newConstat.id, author: state.currentUserName, type: 'status_change', content: 'Nouveau' });
                 if (actionError) throw actionError;
-
-                // 4. Fermer la modale (le temps réel fera le reste)
                 closeModal(eventModal);
-
             } catch (error) {
-                console.error('Erreur lors de la création du constat:', error);
-                alert('Erreur: ' + error.message);
+                console.error('Erreur création constat:', error); alert('Erreur: ' + error.message);
             } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Soumettre';
+                submitButton.disabled = false; submitButton.textContent = 'Soumettre';
             }
         });
-
-        // --- Gestion Upload Photo (inchangée) ---
+        // --- Gestion Upload Photo ---
         const photoInput = document.getElementById('event-photo');
         const uploadZone = document.getElementById('image-upload-zone');
         const handlePhotoFile = (file) => { if (file) { const reader = new FileReader(); reader.onload = e => { document.getElementById('image-preview').src = e.target.result; document.getElementById('image-preview-container').classList.remove('hidden'); }; reader.readAsDataURL(file); } };
@@ -291,116 +297,52 @@
         document.getElementById('remove-image-btn').addEventListener('click', () => { photoInput.value = ''; document.getElementById('image-preview').src = '#'; document.getElementById('image-preview-container').classList.add('hidden'); });
         document.body.addEventListener('click', e => { if (e.target.classList.contains('image-thumbnail')) { document.getElementById('full-image').src = e.target.dataset.src; openModal(imageViewerModal); } });
 
-        // --- Actions Manager (Modifiées) ---
+        // --- Actions Manager ---
         document.getElementById('manager-log-list').addEventListener('change', async (e) => {
             if (e.target.classList.contains('status-select')) {
                 const eventId = parseInt(e.target.dataset.eventId);
                 const newStatus = e.target.value;
-                const event = state.allConstats.find(ev => ev.id === eventId); // Utilise le cache local
-
+                const event = state.allConstats.find(ev => ev.id === eventId);
                 if (event && event.status !== newStatus) {
                     try {
-                        // 1. Mettre à jour le statut du constat
-                        // FIX: Utilisation de supabaseClient
-                        const { error: updateError } = await supabaseClient
-                            .from('constats')
-                            .update({ status: newStatus })
-                            .eq('id', eventId);
+                        const { error: updateError } = await supabaseClient.from('constats').update({ status: newStatus }).eq('id', eventId);
                         if (updateError) throw updateError;
-                        
-                        // 2. Ajouter à l'historique
-                        // FIX: Utilisation de supabaseClient
-                        const { error: actionError } = await supabaseClient
-                            .from('actions_suivi')
-                            .insert({
-                                constat_id: eventId,
-                                author: state.currentUserName,
-                                type: 'status_change',
-                                content: newStatus
-                            });
+                        const { error: actionError } = await supabaseClient.from('actions_suivi').insert({ constat_id: eventId, author: state.currentUserName, type: 'status_change', content: newStatus });
                         if (actionError) throw actionError;
-                        
-                        // Le temps réel s'occupe de l'affichage
-
-                    } catch (error) {
-                         console.error('Erreur changement statut:', error);
-                         alert('Erreur: ' + error.message);
-                    }
+                    } catch (error) { console.error('Erreur changement statut:', error); alert('Erreur: ' + error.message); }
                 }
             }
         });
         document.getElementById('manager-log-list').addEventListener('click', e => {
             const btn = e.target.closest('.comment-btn');
-            if (btn) {
-                const event = state.allConstats.find(ev => ev.id === parseInt(btn.dataset.eventId));
-                if (event) renderCommentModal(event);
-            }
+            if (btn) { const event = state.allConstats.find(ev => ev.id === parseInt(btn.dataset.eventId)); if (event) renderCommentModal(event); }
         });
-        
         const renderCommentModal = (event) => {
             document.getElementById('comment-title').textContent = `Commentaires: ${event.title}`;
             const list = document.getElementById('comment-list');
-            const comments = event.actions_suivi
-                .filter(a => a.type === 'comment')
-                .sort((a,b) => new Date(b.created_at) - new Date(a.created_at)); // trier
-                
-            list.innerHTML = comments.length > 0 
-                ? comments.map(c => 
-                    `<div class="bg-gray-50 p-3 rounded-lg">
-                        <p class="text-sm">${c.content}</p>
-                        <p class="text-xs text-gray-500 mt-1"><strong>${c.author}</strong> - ${new Intl.DateTimeFormat('fr-FR', {dateStyle:'short', timeStyle:'short'}).format(new Date(c.created_at))}</p>
-                    </div>`
-                  ).join('')
-                : `<p class="text-sm text-gray-500 text-center">Aucun commentaire.</p>`;
-            
+            const comments = event.actions_suivi.filter(a => a.type === 'comment').sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            list.innerHTML = comments.length > 0 ? comments.map(c => `<div class="bg-gray-50 p-3 rounded-lg"><p class="text-sm">${c.content}</p><p class="text-xs text-gray-500 mt-1"><strong>${c.author}</strong> - ${new Intl.DateTimeFormat('fr-FR', {dateStyle:'short', timeStyle:'short'}).format(new Date(c.created_at))}</p></div>`).join('') : `<p class="text-sm text-gray-500 text-center">Aucun commentaire.</p>`;
             const form = document.getElementById('comment-form');
-            form.dataset.eventId = event.id;
-            form.reset();
-            openModal(commentModal);
+            form.dataset.eventId = event.id; form.reset(); openModal(commentModal);
         };
-
         document.getElementById('comment-form').addEventListener('submit', async e => {
             e.preventDefault();
             const eventId = parseInt(e.currentTarget.dataset.eventId);
             const text = document.getElementById('new-comment').value;
-            
             if(text.trim() !== ""){
                 try {
-                    // FIX: Utilisation de supabaseClient
-                    const { error } = await supabaseClient
-                        .from('actions_suivi')
-                        .insert({
-                            constat_id: eventId,
-                            author: state.currentUserName,
-                            type: 'comment',
-                            content: text
-                        });
+                    const { error } = await supabaseClient.from('actions_suivi').insert({ constat_id: eventId, author: state.currentUserName, type: 'comment', content: text });
                     if (error) throw error;
-                    
-                    // Le temps réel mettra à jour la liste principale.
-                    // On peut rafraîchir manuellement la modale pour un effet immédiat.
-                    // FIX: Utilisation de supabaseClient
-                    const { data: updatedEvent, error: fetchError } = await supabaseClient
-                        .from('constats')
-                        .select('*, actions_suivi (*)')
-                        .eq('id', eventId)
-                        .single();
+                    const { data: updatedEvent, error: fetchError } = await supabaseClient.from('constats').select('*, actions_suivi (*)').eq('id', eventId).single();
                     if (fetchError) throw fetchError;
-                    
-                    // Mettre à jour le cache local
                     const index = state.allConstats.findIndex(e => e.id === eventId);
                     if (index > -1) state.allConstats[index] = updatedEvent;
-                    
-                    renderCommentModal(updatedEvent); // Re-dessine la modale
-                    
-                } catch (error) {
-                    console.error('Erreur ajout commentaire:', error);
-                    alert('Erreur: ' + error.message);
-                }
+                    renderCommentModal(updatedEvent);
+                } catch (error) { console.error('Erreur ajout commentaire:', error); alert('Erreur: ' + error.message); }
             }
         });
 
-        // --- Action Salarié : Voir Timeline (Modifiée) ---
+        // --- Action Salarié : Voir Timeline ---
         document.getElementById('salarié-log-list').addEventListener('click', (e) => {
             const btn = e.target.closest('.show-timeline-btn');
             if (btn) {
@@ -412,38 +354,67 @@
         const renderTimelineModal = (event) => {
             document.getElementById('timeline-title').textContent = `Suivi: ${event.title}`;
             
-            // 'actions_suivi' contient maintenant statuts ET commentaires
-            const timelineItems = [...event.actions_suivi]
-                .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-
+            const timelineItems = [...event.actions_suivi].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
             const content = document.getElementById('timeline-content');
-            content.innerHTML = timelineItems.length > 0 
-                ? timelineItems.map(item => {
-                    let icon, text;
-                    const date = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short' }).format(new Date(item.created_at));
-                    
-                    if(item.type === 'status_change'){
-                        icon = getStatusInfo(item.content).icon;
-                        text = `Statut changé à <strong>${item.content}</strong>`;
-                    } else { // Commentaire
-                        icon = 'message-circle';
-                        text = `<em class="text-gray-700">"${item.content}"</em>`;
-                    }
-
-                    return `
-                        <div class="flex timeline-item">
-                            <div class="flex flex-col items-center mr-4"><div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"><i data-lucide="${icon}" class="h-4 w-4 text-gray-600"></i></div><div class="w-px h-full bg-gray-300 timeline-line"></div></div>
-                            <div class="pb-8"><p class="mb-1 text-sm">${text}</p><p class="text-xs text-gray-500">${date} par <strong>${item.author}</strong></p></div>
-                        </div>`;
-                }).join('')
-                : `<p class="text-sm text-gray-500 text-center">Aucune action pour le moment.</p>`;
+            content.innerHTML = timelineItems.length > 0 ? timelineItems.map(item => {
+                let icon, text;
+                const date = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full', timeStyle: 'short' }).format(new Date(item.created_at));
+                if(item.type === 'status_change'){
+                    icon = getStatusInfo(item.content).icon;
+                    text = `Statut changé à <strong>${item.content}</strong>`;
+                } else { // Commentaire
+                    icon = 'message-circle';
+                    text = `<em class="text-gray-700">"${item.content}"</em>`;
+                }
+                return `<div class="flex timeline-item"><div class="flex flex-col items-center mr-4"><div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100"><i data-lucide="${icon}" class="h-4 w-4 text-gray-600"></i></div><div class="w-px h-full bg-gray-300 timeline-line"></div></div><div class="pb-8"><p class="mb-1 text-sm">${text}</p><p class="text-xs text-gray-500">${date} par <strong>${item.author}</strong></p></div></div>`;
+            }).join('') : `<p class="text-sm text-gray-500 text-center">Aucune action pour le moment.</p>`;
+            
+            // Affiche le formulaire de commentaire SEULEMENT si on est salarié
+            const commentForm = document.getElementById('timeline-comment-form');
+            if (state.currentUserRole === 'salarié') {
+                commentForm.classList.remove('hidden');
+                commentForm.dataset.eventId = event.id;
+                commentForm.reset();
+            } else {
+                commentForm.classList.add('hidden');
+            }
             
             lucide.createIcons();
             openModal(timelineModal);
         };
+        
+        // --- Action Salarié : Ajout Commentaire Timeline ---
+        document.getElementById('timeline-comment-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const eventId = parseInt(e.currentTarget.dataset.eventId);
+            const text = document.getElementById('timeline-new-comment').value;
+            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+
+            if (text.trim() !== "") {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Envoi...';
+                try {
+                    const { error } = await supabaseClient.from('actions_suivi').insert({ constat_id: eventId, author: state.currentUserName, type: 'comment', content: text });
+                    if (error) throw error;
+                    
+                    const { data: updatedEvent, error: fetchError } = await supabaseClient.from('constats').select('*, actions_suivi (*)').eq('id', eventId).single();
+                    if (fetchError) throw fetchError;
+
+                    const index = state.allConstats.findIndex(e => e.id === eventId);
+                    if (index > -1) state.allConstats[index] = updatedEvent;
+                    
+                    renderTimelineModal(updatedEvent);
+                } catch (error) {
+                    console.error('Erreur ajout commentaire:', error);
+                    alert('Erreur: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Ajouter';
+                }
+            }
+        });
     });
     </script>
 </body>
 </html>
-
 
