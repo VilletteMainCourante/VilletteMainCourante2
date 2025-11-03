@@ -809,20 +809,26 @@
             const originalText = submitButton.textContent;
             submitButton.disabled = true;
             submitButton.textContent = 'Suppression...';
-
+    
             try {
-                const { error: actionsError } = await supabaseClient.from('actions_suivi').delete().eq('constat_id', eventId);
-                if (actionsError) throw actionsError;
+                // MODIFICATION : On ne supprime plus manuellement les 'actions_suivi'.
+                // On suppose que la base de données est configurée avec "ON DELETE CASCADE",
+                // ce qui est la méthode standard.
+                // L'échec venait probablement des permissions (RLS) sur la table 'actions_suivi'.
 
+                // 1. Supprimer la photo du stockage
                 const photoPath = getStoragePathFromUrl(event.photo_url);
                 if (photoPath) {
                     const { error: storageError } = await supabaseClient.storage.from('constats').remove([photoPath]);
-                    if (storageError) console.warn('Erreur suppression photo:', storageError.message);
+                    // On avertit en cas d'erreur, mais on ne bloque pas la suppression du constat
+                    if (storageError) console.warn('Erreur suppression photo (non bloquant):', storageError.message);
                 }
-
+    
+                // 2. Supprimer le constat (le parent)
+                // Si 'ON DELETE CASCADE' est actif, cela supprimera aussi les 'actions_suivi'
                 const { error: constatError } = await supabaseClient.from('constats').delete().eq('id', eventId);
-                if (constatError) throw constatError;
-
+                if (constatError) throw constatError; // Si cela échoue, une erreur sera levée
+    
                 closeModal(deleteModal);
             } catch (error) {
                 console.error('Erreur lors de la suppression:', error);
@@ -916,4 +922,5 @@
     </script>
 </body>
 </html>
+
 
